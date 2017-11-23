@@ -1,0 +1,17 @@
+{
+  "name": "concesionarioud",
+  "version": "1.0.0",
+  "description": "API crud para el PYME concesionario UD",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Juan Sebastian Piedrahita - Sebastian Bohorquez",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "method-override": "^2.3.10",
+    "oracledb": "^1.13.1"
+  }
+}
