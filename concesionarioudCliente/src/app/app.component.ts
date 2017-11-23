@@ -35,6 +35,7 @@ export class AppComponent {
       this.logged = false;
       localStorage.removeItem("user");
       localStorage.removeItem("pass");
+      alert("Usuario/contraseña erroneos");
     });
     this.user.name = "";
     this.user.pass = "";
