@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { OracleDbService } from './oracle-db.service'
 import { log } from 'util';
+import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 
 @Component({
@@ -16,11 +17,17 @@ export class AppComponent {
   };
   logged = false;
   title = 'Concesionario UD';
-  
 
-  constructor(private oracle: OracleDbService){  }
+  hora = new Date();
 
-  logout(){
+
+  constructor(private oracle: OracleDbService) {
+    setInterval(() => {
+      this.hora = new Date();
+    }, 1);
+  }
+
+  logout() {
     localStorage.removeItem("user");
     localStorage.removeItem("pass");
     this.logged = false;
@@ -28,17 +35,18 @@ export class AppComponent {
 
   login() {
     this.oracle.getLogin(this.user.name, this.user.pass)
-    .then((res: any) => {
+      .then((res: any) => {
         this.logged = true;
-    })
-    .catch(()=>{
-      this.logged = false;
-      localStorage.removeItem("user");
-      localStorage.removeItem("pass");
-      alert("Usuario/contraseña erroneos");
-    });
+      })
+      .catch(() => {
+        this.logged = false;
+        localStorage.removeItem("user");
+        localStorage.removeItem("pass");
+        alert("Usuario/contraseña erroneos");
+      });
     this.user.name = "";
     this.user.pass = "";
   }
+
 
 }
