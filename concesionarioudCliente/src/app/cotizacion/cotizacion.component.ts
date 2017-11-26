@@ -11,8 +11,10 @@ export class CotizacionComponent implements OnInit {
   constructor(private router:Router) { }
 
   ngOnInit() {
+
     if(localStorage.getItem("user")==null){
       this.router.navigate([""]);
+      
   }
   }
 

@@ -3,12 +3,14 @@ import { NgModule } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 
-
+//import for routing
 import { AppRoutingModule } from './app-routing.module';
 
 import { HttpModule } from '@angular/http'
 //import service for oracle database api
 import { OracleDbService } from './oracle-db.service'
+//import for pdf generator
+
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -27,7 +29,9 @@ import { CotizacionComponent } from './cotizacion/cotizacion.component';
     HttpModule,
     FormsModule
   ],
-  providers: [OracleDbService],
+  providers: [
+    OracleDbService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
