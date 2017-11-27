@@ -38,7 +38,7 @@ export class AppComponent  implements OnInit{
   }
 
   login() {
-    this.oracle.getLogin(this.user.name, this.user.pass)
+    this.oracle.getLogin(this.user.name, this.user.pass).toPromise()
       .then((res: any) => {
         this.logged = true;
       })

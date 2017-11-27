@@ -14,6 +14,15 @@ export class OracleDbService {
   url: string = "http://localhost:3030/";
   empleado: string = "empleado";
   login: string = "login";
+  contactosCliente:string = "contacto";
+  cliente: string = "cliente";  
+  auto: string = "auto";
+  autoCaracteristica: string = "autoCaracteristica";
+  autoParte: string = "autoParte";
+  valorAuto: string = "valorAuto";
+  parteLujo: string = "parteLujo";
+  maximo: string = "maximo";
+  postCotizar: string = "postCotizacion";
 
   constructor(private http: Http) { }
 
@@ -33,22 +42,61 @@ export class OracleDbService {
       headers: this.headers,
       //params: (parametros!=null)?new URLSearchParams(this.addUserParams(parametros)).toString():'',
       params: new URLSearchParams(this.addUserParams(parametros)).toString(),
-    }).toPromise();   
+    });
+    //}).toPromise();   
   }
 
   oraclePost(tabla, parametros){
-    let body = new URLSearchParams(parametros).toString();
-    return this.http.post(this.url+tabla,body,{
-      headers: this.headers
-    }).toPromise();
+    //let body = new URLSearchParams(parametros).toString();
+    return this.http.post(this.url+tabla,parametros,{
+      headers: this.headers,
+      params: new URLSearchParams(this.addUserParams(parametros)).toString()
+    });
+    //}).toPromise();
+  }
+
+  postCotizacion(parametro: any){
+    return this.oraclePost(this.postCotizar, parametro);
   }
 
   getEmpleados(){
     return this.oracleGet(this.empleado, null);
   }
 
-  getEmpleado(id: number){
-    return this.oracleGet(this.empleado, {id: id});
+  getEmpleado(id: string){
+    return this.oracleGet(this.empleado, {usuario: id});
+  }
+
+  getMaximo(tabla: string){
+    return this.oracleGet(this.maximo, {tabla: tabla});
+  }
+
+  getAutoCaracteristica(id: number){
+    return this.oracleGet(this.autoCaracteristica, {id: id});
+  }
+
+  getValorAuto(id: number){
+    return this.oracleGet(this.valorAuto, {id: id});
+  }
+
+  getAutoParte(id: number){
+    return this.oracleGet(this.autoParte, {id: id});
+  }
+
+  getAuto(){
+    return this.oracleGet(this.auto, null);
+  }
+
+  getParteLujo(){
+    return this.oracleGet(this.parteLujo, null);
+  }
+
+  getContactossCliente(idCliente: number){
+    return this.oracleGet(this.contactosCliente, {id: idCliente});
+  }
+
+  getCliente(idCliente: number){
+    return this.oracleGet(this.cliente, {id: idCliente});
   }
 
 

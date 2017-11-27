@@ -61,6 +61,46 @@ function open(username,pass, sql, binds, dml, rs){
 
 }
 
+function insert(username, pass, sql,binds,rs){
+	connectionString.user = username;
+	connectionString.password = pass;
+	oracledb.getConnection(connectionString, function(err,cn){
+		if(error(err,rs,cn)==-1) return;
+		console.log("sql",sql);
+		cn.execute("alter session set nls_date_format ='DD-MM-RR'");
+		cn.execute(sql,binds,{}, function(err, result){
+			if(error(err,rs,cn)==-1) {console.log("error"); return;}
+			cn.execute("commit");
+			console.log("resultado",result);
+		});
+		
+	});
+}
+
+function getMaximo(username, pass, sql,rs){
+
+	//user credentias
+	connectionString.user = username;
+	connectionString.password = pass;
+
+	rs.header('Access-Control-Allow-Origin', '*'); 
+  	rs.header('Access-Control-Allow-Methods', 'GET, POST');
+  	rs.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  	rs.contentType('application/json').status(200);
+
+
+	oracledb.getConnection(connectionString, function(err,cn){
+		cn.execute(sql, function(err, result){
+			console.log(result);
+			if(result.rows[0][0]==null){
+				rs.send({id:1});
+			}else{
+				rs.send({id: result.rows[0][0]});
+			}
+		});
+	});
+}
+
 
 function close(cn){
 
@@ -74,3 +114,5 @@ function close(cn){
 
 exports.open = open;
 exports.close = close;
+exports.getMaximo = getMaximo;
+exports.insert = insert;

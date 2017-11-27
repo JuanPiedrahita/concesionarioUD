@@ -13,10 +13,10 @@
   
   router.get('/empleado',function(request, response){
   	//console.log(request.query);
-  	if(request.query.id!==undefined){
-  		sql = "Select * from s_emp  where id=:idEmpleado";
-  		idEmpleado = request.query.id;
-    	basicOracle.open(request.query.user,request.query.pass,sql,[idEmpleado],false,response)
+  	if(request.query.usuario!==undefined){
+  		sql = "Select * from empleado  where usuario=:userEmpleado";
+  		userEmpleado = request.query.usuario;
+    	basicOracle.open(request.query.user,request.query.pass,sql,[userEmpleado],false,response)
   	}else{
   		sql = "Select * from s_emp";
     	basicOracle.open(request.query.user,request.query.pass,sql,[],false,response)
@@ -24,10 +24,94 @@
     response.end;
   });
 
+  router.get('/contacto', function(request,response){
+    sql = "Select upper(n.nombreTipoCont) tipo, d.descripcionContacto contacto from contacto d, tipoContacto n where n.idTipoContacto=d.idTipoContacto and idCliente=:id";
+    id = request.query.id;
+    basicOracle.open(request.query.user,request.query.pass,sql,[id],false,response);
+    response.end;
+  });
+
+  router.get('/cliente', function(request,response){
+    sql = "Select upper(primerNombre||' '||primerApellido) nombre from cliente where idCliente=:id";
+    id = request.query.id;
+    basicOracle.open(request.query.user,request.query.pass,sql,[id],false,response);
+    response.end;
+  });
+
+  router.get('/autoCaracteristica', function(request,response){
+    sql = "Select t.nombreTipoCarac tipo, c.descrCaracteristica descripcion from autoCaracteristica ac, caracteristica c, tipoCaracteristica t where t.idTipoCaracteristica=c.idTipoCarac and c.idCarac=ac.idCaracteristica and ac.idAuto=:id";
+    id = request.query.id;
+    basicOracle.open(request.query.user,request.query.pass,sql,[id],false,response);
+    response.end;
+  });
+
+ router.get('/autoParte', function(request,response){
+    sql = "Select p.idParte id, p.nombreParte parte, pa.precioparteauto precio from parte p, parteauto pa where pa.idParte=p.idparte and pa.idAuto=:id";
+    id = request.query.id;
+    basicOracle.open(request.query.user,request.query.pass,sql,[id],false,response);
+    response.end;
+  });
+
+ router.get('/valorAuto', function(request,response){
+    sql = "Select idHistoPreciosAuto id, precioAuto valor from histoPreciosAuto where idAuto=:id";
+    id = request.query.id;
+    basicOracle.open(request.query.user,request.query.pass,sql,[id],false,response);
+    response.end;
+  });
+
+
+
+ router.get('/parteLujo', function(request,response){
+    sql = "select p.idParte id, p.nombreParte parte, h.precioParte precio from parte p, histoPrecioParte h, tipoParte tp where tp.idTipoParte=3 and tp.idTipoParte=p.idTipoParte and h.idParte=p.idParte";
+    basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
+    response.end;
+  });
+
+  router.get('/auto', function(request,response){
+    sql = "select vim vin, nombreAuto nombre from auto";
+    basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
+    response.end;
+  });
+
+
+  router.get('/maximo',function(request, response){
+    tabla = request.query.tabla;
+    if(tabla==="cotizacion"){
+      sql = "select max(idCotizacion)+1 from cotizacion"; 
+    }
+    if(tabla==="proceso"){
+      sql = "select max(idProceso)+1 from proceso"; 
+    }
+    basicOracle.getMaximo(request.query.user,request.query.pass,sql,response);
+    response.end;
+  });
+
   router.get('/login',function(request, response){
   		sql = "select user from dual",
   		basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
   		response.end;
+  });
+
+  router.post('/postCotizacion', function(request, response){
+      //console.log("body");
+      console.log("params", request.query);
+      response.header('Access-Control-Allow-Origin', '*'); 
+      response.header('Access-Control-Allow-Methods', 'GET, POST');
+      response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+      var idCotizacion = parseInt(request.query.idCotizacion);
+      var fechaCotizacion = new Date(request.query.fechaCotizacion);
+      var vigencia = parseInt(request.query.vigencia);
+      var idCliente = parseInt(request.query.idCliente);
+      var idEmpleado = parseInt(request.query.idEmpleado);
+      var totalCotizacion = parseFloat(request.query.totalCotizacion);
+      sql = "insert into cotizacion values (:idCotizacion,:fechaCotizacion,:vigencia,:idCliente,:idEmpleado,:totalCotizacion)";
+
+     // sql = "insert into cotizacion (idCotizacion,fechaCotizacion,vigencia,idCliente,idEmpleado,totalCotizacion) values (103,'12/12/12',30,1,1,12.0)";
+     // sql = "insert into cargo values (13,'12/12/12')";
+     // sql = " select * from nls_session_parameters";
+      basicOracle.insert(request.query.user,request.query.pass, sql,[idCotizacion,fechaCotizacion,vigencia,idCliente,idEmpleado,totalCotizacion],response);
+      response.contentType('application/json').status(200);
+      response.send(JSON.stringify("Inserta contizacion"));
   });
 
   //router.post('/login', function(request, response){

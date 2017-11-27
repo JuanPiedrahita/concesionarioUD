@@ -1,3 +1,68 @@
-<p>
-  cotizacion works!
-</p>
+<div class="container">
+    <div class="col">
+        <form>
+          <input [(ngModel)]="documentoCliente" name="cedula" class="txt" placeholder="Digite el documento del cliente" style="width:70%">
+          <input (click)="seleccionarCliente()" class="btn" type="submit" value="Seleccionar Cliente" style="display: inline">
+          <input (click)="registrarCliente()" class="btn" type="submit" value="Registrar Cliente" style="display:inline">
+        </form>
+      </div>
+
+      <div class="col" >
+        <h2>Cliente</h2>
+        <h3 *ngIf="cliente!=''"> Nombre: {{cliente}} </h3>
+        <h3 *ngIf="cliente!=''"> Documento: {{idCliente}} </h3>
+        <h2> Contacto del cliente</h2>
+        <h3 *ngFor="let contacto of contactosCliente"> {{contacto.TIPO}}: {{contacto.CONTACTO}} </h3>
+      </div>
+</div>
+
+<div class="container" *ngIf="cliente!=''">
+    <div class="col">
+        <h2>Seleccione el vehiculo</h2>
+        <form>
+          <select [ngModel]="vinAuto"  (ngModelChange)="cotizarAuto($event)" name="auto" class="txt"  style="width:70%">
+            <option *ngFor="let auto of autos" value="{{auto.VIN}}">{{auto.NOMBRE}}</option>
+          </select>
+        </form>
+      </div>
+
+      <div class="col" *ngIf="mostrarPartes" >
+          <h2> Caracteristicas del auto</h2>
+          <h3 *ngFor="let caracteristica of caracteristicasAuto"> {{caracteristica.TIPO}}: {{caracteristica.DESCRIPCION}} </h3>
+      </div>
+</div>
+
+<div class="" *ngIf="mostrarPartes">
+    <h2> Caracteristicas del auto</h2>
+    <br>
+    <table style="width:100%; text-align:left">
+    <tr>
+      <th>PARTE </th>
+      <th>PRECIO </th>
+    </tr>
+    <tr *ngFor="let parte of partesAuto">
+       <th> {{parte.PARTE}}: </th>
+       <th> {{parte.PRECIO}}</th>
+    </tr>
+    <tr>
+        <th>TOTAL </th>
+        <th>{{total}} </th>
+      </tr>
+    </table>
+  </div>
+
+  <div class="" *ngIf="mostrarPartes">
+      <h2>Agregar parte de lujo</h2>
+      <form>
+          <select [(ngModel)]="parteLujoCarro"  (ngModelChange)="cambiarTexto($event)" name="auto" class="txt"  style="width:50%">
+            <option *ngFor="let parteLujo of partesLujo" value="{{partesLujo.indexOf(parteLujo)}}">{{parteLujo.PARTE}}:{{parteLujo.PRECIO}}</option>
+          </select>
+          
+          <input (click)="agregarParte()" class="btn" type="submit" value="{{btnParteLujo}}" style="display: inline">
+        </form>
+  </div>
+ 
+  <div class="center">
+    <br>
+    <input *ngIf="mostrarPartes" (click)="registrarCotizacion()" class="btn" type="submit" value="Registrar cotizacion">
+  </div>
