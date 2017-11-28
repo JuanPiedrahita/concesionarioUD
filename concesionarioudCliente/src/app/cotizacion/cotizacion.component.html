@@ -34,6 +34,7 @@
 
 <div class="" *ngIf="mostrarPartes">
     <h2> Caracteristicas del auto</h2>
+    <h2> Auto: {{auto}}</h2>
     <br>
     <table style="width:100%; text-align:left">
     <tr>
@@ -45,7 +46,7 @@
        <th> {{parte.PRECIO}}</th>
     </tr>
     <tr>
-        <th>TOTAL </th>
+        <th>TOTAL COMPRA</th>
         <th>{{total}} </th>
       </tr>
     </table>
@@ -62,7 +63,15 @@
         </form>
   </div>
  
-  <div class="center">
+  <div class="" *ngIf="mostrarPartes">
     <br>
-    <input *ngIf="mostrarPartes" (click)="registrarCotizacion()" class="btn" type="submit" value="Registrar cotizacion">
+    <form>
+        <label > Ingrese valor del seguro: </label><input  type="number" [(ngModel)]="seguro" name="valorSeguro" class="txt" placeholder="Valor del seguro" style="width:70%;  display:inline">
+        <br>
+        <label> Ingrese valor de la matricula: </label><input  type="number" [(ngModel)]="matricula"  name="valorMatricula" class="txt" placeholder="Valor de la matricula" style="width:70%; display:inline">
+        <br>
+        <h1> Total + tramites = {{total+seguro+matricula}} </h1>
+
+        <input *ngIf="seguro!=undefined && matricula!=undefined" (click)="registrarCotizacion()" class="btn" type="submit" value="Registrar cotizacion">
+    </form>
   </div>

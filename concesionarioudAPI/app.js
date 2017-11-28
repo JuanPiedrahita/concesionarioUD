@@ -82,6 +82,12 @@
     if(tabla==="proceso"){
       sql = "select max(idProceso)+1 from proceso"; 
     }
+    if(tabla==="registro"){
+      sql = "select max(idRegistro)+1 from registro"; 
+    }
+    if(tabla==="preciosRegistro"){
+      sql = "select max(idHistoricoPreciosReg)+1 from HistoricoPreciosReg";
+    }
     basicOracle.getMaximo(request.query.user,request.query.pass,sql,response);
     response.end;
   });
@@ -110,6 +116,14 @@
       var descripcionProceso = request.query.descripcionProceso;
       var idTipoProceso = parseInt(request.query.idTipoProceso);
 
+      //detalles de registro 
+      var idSeguro = parseInt(request.query.idRegistro);
+      var idHistoricoSeguro = parseInt(request.query.idHistoricoRegistro);
+      var idMatricula = idSeguro+1;
+      var idHistoricoMatricula = idHistoricoSeguro + 1;
+      var seguro = parseFloat(request.query.seguro);
+      var matricula = parseFloat(request.query.matricula);
+ 
       // array de detalles
       var arrDet = JSON.parse(decodeURIComponent(request.query.detallesCotizacion));
       console.log("detalles",arrDet);
@@ -120,30 +134,56 @@
       connection.then(function(conexion){
          sql1 = "insert into cotizacion values (:idCotizacion,:fechaCotizacion,:vigencia,:idCliente,:idEmpleado,:totalCotizacion)";
          sql2 = "insert into proceso values (:idProceso, :descripcionProceso, :idTipoProceso,:idCotizacion,:fechaCotizacion)";
+         sqlseguro = "insert into registro (idRegistro,idTipoRegistro,idAseguradora,idCotizacion,idAsesor) values (:idSeguro,1,1,:idCotizacion,:idEmpleado)";
+         sqlMatricula = "insert into registro (idRegistro, idTipoRegistro,idCotizacion,idAsesor) values (:idMatricula,2,:idCotizacion,:idEmpleado)" ;
+         sqlHistoricoSeguro = "insert into HistoricoPreciosReg values (:idHistoricoSeguro,'Valor seguro acordado',:idSeguro,:seguro)";
+         sqlHistoricoMatricula = "insert into HistoricoPreciosReg values (:idHistoricoMatricula,'Valor matricula acordado',:idMatricula,:matricula)";
          basicOracle.insert(conexion, sql1,[idCotizacion,fechaCotizacion,vigencia,idCliente,idEmpleado,totalCotizacion],response)
          .then(function(){
+
             basicOracle.insert(conexion,sql2,[idProceso,descripcionProceso,idTipoProceso,idCotizacion,fechaCotizacion],response).
             then(function(){
 
-                  var promesas = [];
-                  for(var i = 0; i<arrDet.length; i++){
-                    var detalle = arrDet[i];
-                    var idDetalleCotizacion = detalle.idDetalleCotizacion;
-                    var descCotizacion = detalle.descCotizacion;
-                    var elemento = detalle.elemento;
-                    var valorElemento = detalle.valorElemento; 
-                    var sentencia = "insert into detalleCotizacion values (:idDetalleCotizacion,:descCotizacion,:idCotizacion,:elemento,:valorElemento)";
-                    promesas.push(
-                      basicOracle.insert(conexion,sentencia,[idDetalleCotizacion,descCotizacion,idCotizacion,elemento,valorElemento],response)
-                    );
-                    console.log("detalle",arrDet[i])
-                  }
-                  Promise.all(promesas).then(function(){
-                    basicOracle.insert(conexion,"commit",[],response).then(function(){
-                      response.contentType('application/json').status(200);
-                      response.send(JSON.stringify("Inserta contizacion"));   
-                    });      
+                  basicOracle.insert(conexion,sqlseguro,[idSeguro,idCotizacion,idEmpleado],response).
+                  then(function(){
+
+                    basicOracle.insert(conexion,sqlMatricula,[idMatricula,idCotizacion,idEmpleado],response)
+                    .then(function(){
+
+                      basicOracle.insert(conexion,sqlHistoricoSeguro,[idHistoricoSeguro,idSeguro,seguro], response)
+                      .then(function(){
+
+                        basicOracle.insert(conexion,sqlHistoricoMatricula,[idHistoricoMatricula,idMatricula,matricula], response)
+                        .then(function(){
+
+                          var promesas = [];
+                          for(var i = 0; i<arrDet.length; i++){
+                            var detalle = arrDet[i];
+                            var idDetalleCotizacion = detalle.idDetalleCotizacion;
+                            var descCotizacion = detalle.descCotizacion;
+                            var elemento = detalle.elemento;
+                            var valorElemento = detalle.valorElemento; 
+                            var sentencia = "insert into detalleCotizacion values (:idDetalleCotizacion,:descCotizacion,:idCotizacion,:elemento,:valorElemento)";
+                            promesas.push(
+                              basicOracle.insert(conexion,sentencia,[idDetalleCotizacion,descCotizacion,idCotizacion,elemento,valorElemento],response)
+                            );
+                            console.log("detalle",arrDet[i])
+                          }
+                          Promise.all(promesas).then(function(){
+                            basicOracle.insert(conexion,"commit",[],response).then(function(){
+                              response.contentType('application/json').status(200);
+                              response.send(JSON.stringify("Inserta contizacion"));   
+                            });      
+                          });
+
+                        });
+
+                      });
+
+                    });
+
                   });
+
             });
          });
       });

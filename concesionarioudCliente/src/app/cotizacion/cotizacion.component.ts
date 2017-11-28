@@ -13,6 +13,8 @@ export class CotizacionComponent implements OnInit {
 
   constructor(private router: Router, private oracle: OracleDbService) { }
 
+  seguro: number = 0;
+  matricula: number = 0;
   documentoCliente = "";
   idCliente: number;
   cliente: string = "";
@@ -73,8 +75,8 @@ export class CotizacionComponent implements OnInit {
   cotizarAuto(valor) {
     this.mostrarPartes = false;
 
-    for(var i=0;i<this.autos.length;i++){
-      if(this.autos[i].VIN==valor){
+    for (var i = 0; i < this.autos.length; i++) {
+      if (this.autos[i].VIN == valor) {
         this.auto = this.autos[i].NOMBRE;
       }
     }
@@ -136,6 +138,10 @@ export class CotizacionComponent implements OnInit {
 
 
   registrarCotizacion() {
+    //se agrega el total
+    this.total += this.seguro+this.matricula;
+
+    //se buscan los ids para insertar
     this.oracle.getMaximo("cotizacion")
       .subscribe(response => {
         var idCotizacion = JSON.parse(response.text()).id;
@@ -144,58 +150,90 @@ export class CotizacionComponent implements OnInit {
             this.oracle.getMaximo("proceso")
               .subscribe(responseProceso => {
                 var idProceso = JSON.parse(responseProceso.text()).id;
-                var fecha = new Date().toJSON().slice(0, 10);
-                var idEmpleado = JSON.parse(empleado.text())[0].IDEMPLEADO;
+                this.oracle.getMaximo("registro")
+                .subscribe(responseRegistro =>{
+                  var idRegistro = JSON.parse(responseRegistro.text()).id;
+                  this.oracle.getMaximo("preciosRegistro")
+                  .subscribe(responsePreciosRegistro => {
+                    var idHistoricoPreciosRegistro = JSON.parse(responsePreciosRegistro.text()).id;
 
-
-                //data de los detalles de la cotizacion
-                var dataDetalleCotizacion = [];
-                dataDetalleCotizacion.push({
-                  idDetalleCotizacion: 1,
-                  descCotizacion: 'Valor del auto',
-                  nombre: this.auto,
-                  elemento: this.valorAuto[0].ID,
-                  valorElemento: this.valorAuto[0].VALOR,
-                });
-                var contador = 1;
-                this.partesAgregadas.forEach(parte => {
-                  contador++;
-                  dataDetalleCotizacion.push(
-                    {
+                    var fecha = new Date().toJSON().slice(0, 10);
+                    var idEmpleado = JSON.parse(empleado.text())[0].IDEMPLEADO;
+    
+    
+                    //data de los detalles de la cotizacion
+                    var dataDetalleCotizacion = [];
+                    dataDetalleCotizacion.push({
+                      idDetalleCotizacion: 1,
+                      descCotizacion: 'Valor del auto',
+                      nombre: this.auto,
+                      elemento: this.valorAuto[0].ID,
+                      valorElemento: this.valorAuto[0].VALOR,
+                    });
+                    var contador = 1;
+                    this.partesAgregadas.forEach(parte => {
+                      contador++;
+                      dataDetalleCotizacion.push(
+                        {
+                          idDetalleCotizacion: contador,
+                          descCotizacion: 'Valor parte',
+                          nombre: parte.PARTE,
+                          elemento: parte.ID,
+                          valorElemento: parte.PRECIO,
+                        }
+                      );
+                    });
+                    contador ++;
+                    dataDetalleCotizacion.push({
                       idDetalleCotizacion: contador,
-                      descCotizacion: 'Valor parte',
-                      nombre: parte.PARTE,
-                      elemento: parte.ID,
-                      valorElemento: parte.PRECIO,
+                      descCotizacion: 'Valor de tramite',
+                      nombre: 'Seguro',
+                      elemento: idHistoricoPreciosRegistro,
+                      valorElemento: this.matricula,
+                    });
+                    contador ++;
+                    dataDetalleCotizacion.push({
+                      idDetalleCotizacion: contador,
+                      descCotizacion: 'Valor de tramite',
+                      nombre: 'Matricula',
+                      elemento: (idHistoricoPreciosRegistro+1),
+                      valorElemento: this.seguro,
+                    });
+    
+                    var dataCotizacion = {
+                      // data para la cotizacion
+                      idCotizacion: idCotizacion,
+                      fechaCotizacion: fecha,
+                      vigencia: 30,
+                      idCliente: this.idCliente,
+                      idEmpleado: idEmpleado,
+                      totalCotizacion: this.total,
+    
+                      //data para la tabla proceso
+                      idProceso: idProceso,
+                      descripcionProceso: 'Se realiza cotizacion',
+                      idTipoProceso: 1,
+    
+                      //data detalles de la cotizacion
+                      detallesCotizacion: JSON.stringify(dataDetalleCotizacion),
+    
+                      //data para los tramitees
+                      idRegistro : idRegistro,
+                      idHistoricoRegistro : idHistoricoPreciosRegistro,
+                      seguro: this.seguro,
+                      matricula: this.matricula
                     }
-                  );
-                });
+                    console.log(dataCotizacion);
+                    this.oracle.postCotizacion(dataCotizacion)
+                      .subscribe(responseEnviar => {
+                        console.log(responseEnviar.text());
+                        alert("Se registro la cotización exitosamente, por favor guarde el pdf.");
+                        this.generarPDF(dataCotizacion);
+                        this.router.navigate([""]);
+                      });
 
-                var dataCotizacion = {
-                  // data para la cotizacion
-                  idCotizacion: idCotizacion,
-                  fechaCotizacion: fecha,
-                  vigencia: 30,
-                  idCliente: this.idCliente,
-                  idEmpleado: idEmpleado,
-                  totalCotizacion: this.total,
-
-                  //data para la tabla proceso
-                  idProceso: idProceso,
-                  descripcionProceso: 'Se realiza cotizacion',
-                  idTipoProceso: 1,
-
-                  //data detalles de la cotizacion
-                  detallesCotizacion: JSON.stringify(dataDetalleCotizacion),
-                }
-
-                this.oracle.postCotizacion(dataCotizacion)
-                  .subscribe(responseEnviar => {
-                    console.log(responseEnviar.text());
-                   // this.cliente = "";
-                   // this.mostrarPartes = false;
-                    this.generarPDF(dataCotizacion);
                   });
+                });
               });
           });
 
@@ -203,14 +241,14 @@ export class CotizacionComponent implements OnInit {
   }
 
   generarPDF(data: any) {
- 
+
     var pdfmaker = require('pdfmake/build/pdfmake.js');
     var pdfFonts = require('pdfmake/build/vfs_fonts.js');
 
     var body = [];
 
     var detalles = JSON.parse(data.detallesCotizacion);
-    
+
     var fila = new Array();
     fila.push("Elemento");
     fila.push("Descripcion detalle");
@@ -218,7 +256,7 @@ export class CotizacionComponent implements OnInit {
     fila.push("Valor");
     body.push(fila);
 
-    for(var i = 0; i<detalles.length; i++){
+    for (var i = 0; i < detalles.length; i++) {
       fila = new Array();
       var detalle = detalles[i];
       fila.push(detalle.idDetalleCotizacion);
@@ -226,7 +264,20 @@ export class CotizacionComponent implements OnInit {
       fila.push(detalle.nombre);
       fila.push(detalle.valorElemento);
       body.push(fila);
+      if(i===0){
+        for(var j = 0; j<this.partesAuto.length;j++){
+          fila = new Array();
+          var parte = this.partesAuto[j];
+          fila.push("");
+          fila.push("");
+          fila.push(parte.PARTE);
+          fila.push("");
+          body.push(fila);
+        }
+      }
     }
+
+
 
     fila = new Array();
     fila.push("TOTAL");
@@ -237,40 +288,42 @@ export class CotizacionComponent implements OnInit {
 
 
     var contactos = "";
-    for(var i= 0; i<this.contactosCliente.length;i++){
+    for (var i = 0; i < this.contactosCliente.length; i++) {
       var contacto = this.contactosCliente[i];
-      contactos += contacto.TIPO+": "+contacto.CONTACTO+"\n"
+      contactos += contacto.TIPO + ": " + contacto.CONTACTO + "\n"
     }
-    
+
 
     //definicion del pdf
     var dd = {
       content: [
-        { text: "CONCESIONARIO UD \n \n \n \n"},
-        { text: "Formato de cotización \n \n \n",
-          alignment:'center',
+        { text: "CONCESIONARIO UD \n \n \n \n" },
+        {
+          text: "Formato de cotización \n \n \n",
+          alignment: 'center',
         },
         {
-          text: 'Consecutivo: '+data.idCotizacion+' \n \n'
+          text: 'Consecutivo: ' + data.idCotizacion + ' \n \n'
         },
-        { text: "Datos del cliente: \n"
-          +"Número de identificación: "+this.idCliente+"\n"
-          +"Nombre: "+this.cliente+"\n \n"
+        {
+          text: "Datos del cliente: \n"
+            + "Número de identificación: " + this.idCliente + "\n"
+            + "Nombre: " + this.cliente + "\n \n"
         },
         {
           text: "Contactos del cliente:\n"
-          + contactos
-          + "\n \n"
+            + contactos
+            + "\n \n"
         },
         {
-          text:"Detalles de la factura \n \n",
+          text: "Detalles de la cotización \n \n",
           alignment: 'center'
         },
         {
           table:
             {
               headerRows: 1,
-              widths:['25%','25%','25%','25%'],
+              widths: ['25%', '25%', '25%', '25%'],
               body: body
             }
         }
