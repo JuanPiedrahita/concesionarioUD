@@ -8,12 +8,11 @@ connectionString = {
 
 function error(err, rs, cn){
 	if(err){
-		console.log(err.message);
+		console.log("error", err.message);
 		rs.contentType('application/json').status(500);
 		rs.send(err.message);
 		if(cn!=null) close(cn);
 		return -1;
-				
 	} else {
 		return 0;
 	}
@@ -61,20 +60,29 @@ function open(username,pass, sql, binds, dml, rs){
 
 }
 
-function insert(username, pass, sql,binds,rs){
-	connectionString.user = username;
-	connectionString.password = pass;
-	oracledb.getConnection(connectionString, function(err,cn){
-		if(error(err,rs,cn)==-1) return;
-		console.log("sql",sql);
-		cn.execute("alter session set nls_date_format ='DD-MM-RR'");
-		cn.execute(sql,binds,{}, function(err, result){
-			if(error(err,rs,cn)==-1) {console.log("error"); return;}
-			cn.execute("commit");
-			console.log("resultado",result);
+function getConnection(username, pass,rs){
+	var promise = new Promise(function(resolve, reject){
+		connectionString.user = username;
+		connectionString.password = pass;
+		oracledb.getConnection(connectionString, function(err,cn){
+			if(error(err,rs,cn)==-1) { reject(err); return;};
+			resolve(cn);
 		});
-		
 	});
+	return promise;
+}
+
+function insert(cn, sql,binds,rs){
+	var promise = new Promise(function(resolve,reject){
+		console.log("sql",sql);
+		cn.execute("alter session set nls_date_format ='DD-MM-YYYY'");
+		cn.execute(sql,binds,{}, function(err, result){
+			if(error(err,rs,cn)==-1) { reject(err); console.log("error"); return;}
+			console.log("resultado",result);
+			resolve(result);
+		});
+	});
+	return promise;
 }
 
 function getMaximo(username, pass, sql,rs){
@@ -116,3 +124,4 @@ exports.open = open;
 exports.close = close;
 exports.getMaximo = getMaximo;
 exports.insert = insert;
+exports.getConnection = getConnection;

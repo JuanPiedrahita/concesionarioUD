@@ -146,3 +146,9 @@ insert into empleado (idEmpleado,nombreEmpleado, ApellidoEmpleado,fechainicio,fe
 
 
 insert into tipoProceso values (1,'Cotizacion');	
+
+##inserts into registro
+insert into aseguradora values (1,'Seguros del estado',0);
+
+insert into tipoRegistro values (1,'Tramite del seguro');
+insert into tipoRegistro values (2,'Tramite de matricula');

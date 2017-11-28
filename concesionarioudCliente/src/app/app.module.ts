@@ -16,6 +16,7 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { CotizacionComponent } from './cotizacion/cotizacion.component';
 
+declare var require: any;
 
 @NgModule({
   declarations: [

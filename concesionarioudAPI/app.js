@@ -100,18 +100,54 @@
       response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
       var idCotizacion = parseInt(request.query.idCotizacion);
       var fechaCotizacion = new Date(request.query.fechaCotizacion);
+      fechaCotizacion.setDate(fechaCotizacion.getDate()+1);
       var vigencia = parseInt(request.query.vigencia);
       var idCliente = parseInt(request.query.idCliente);
       var idEmpleado = parseInt(request.query.idEmpleado);
       var totalCotizacion = parseFloat(request.query.totalCotizacion);
-      sql = "insert into cotizacion values (:idCotizacion,:fechaCotizacion,:vigencia,:idCliente,:idEmpleado,:totalCotizacion)";
 
-     // sql = "insert into cotizacion (idCotizacion,fechaCotizacion,vigencia,idCliente,idEmpleado,totalCotizacion) values (103,'12/12/12',30,1,1,12.0)";
-     // sql = "insert into cargo values (13,'12/12/12')";
-     // sql = " select * from nls_session_parameters";
-      basicOracle.insert(request.query.user,request.query.pass, sql,[idCotizacion,fechaCotizacion,vigencia,idCliente,idEmpleado,totalCotizacion],response);
-      response.contentType('application/json').status(200);
-      response.send(JSON.stringify("Inserta contizacion"));
+      var idProceso = parseInt(request.query.idProceso);
+      var descripcionProceso = request.query.descripcionProceso;
+      var idTipoProceso = parseInt(request.query.idTipoProceso);
+
+      // array de detalles
+      var arrDet = JSON.parse(decodeURIComponent(request.query.detallesCotizacion));
+      console.log("detalles",arrDet);
+
+      
+
+      var connection = basicOracle.getConnection(request.query.user, request.query.pass,response);
+      connection.then(function(conexion){
+         sql1 = "insert into cotizacion values (:idCotizacion,:fechaCotizacion,:vigencia,:idCliente,:idEmpleado,:totalCotizacion)";
+         sql2 = "insert into proceso values (:idProceso, :descripcionProceso, :idTipoProceso,:idCotizacion,:fechaCotizacion)";
+         basicOracle.insert(conexion, sql1,[idCotizacion,fechaCotizacion,vigencia,idCliente,idEmpleado,totalCotizacion],response)
+         .then(function(){
+            basicOracle.insert(conexion,sql2,[idProceso,descripcionProceso,idTipoProceso,idCotizacion,fechaCotizacion],response).
+            then(function(){
+
+                  var promesas = [];
+                  for(var i = 0; i<arrDet.length; i++){
+                    var detalle = arrDet[i];
+                    var idDetalleCotizacion = detalle.idDetalleCotizacion;
+                    var descCotizacion = detalle.descCotizacion;
+                    var elemento = detalle.elemento;
+                    var valorElemento = detalle.valorElemento; 
+                    var sentencia = "insert into detalleCotizacion values (:idDetalleCotizacion,:descCotizacion,:idCotizacion,:elemento,:valorElemento)";
+                    promesas.push(
+                      basicOracle.insert(conexion,sentencia,[idDetalleCotizacion,descCotizacion,idCotizacion,elemento,valorElemento],response)
+                    );
+                    console.log("detalle",arrDet[i])
+                  }
+                  Promise.all(promesas).then(function(){
+                    basicOracle.insert(conexion,"commit",[],response).then(function(){
+                      response.contentType('application/json').status(200);
+                      response.send(JSON.stringify("Inserta contizacion"));   
+                    });      
+                  });
+            });
+         });
+      });
+     // basicOracle.insert(request.query.user,request.query.pass, sql,[idCotizacion,fechaCotizacion,vigencia,idCliente,idEmpleado,totalCotizacion],response);
   });
 
   //router.post('/login', function(request, response){
