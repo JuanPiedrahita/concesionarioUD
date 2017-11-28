@@ -165,7 +165,7 @@ export class CotizacionComponent implements OnInit {
                     var dataDetalleCotizacion = [];
                     dataDetalleCotizacion.push({
                       idDetalleCotizacion: 1,
-                      descCotizacion: 'Valor del auto',
+                      descCotizacion: 'Auto',
                       nombre: this.auto,
                       elemento: this.valorAuto[0].ID,
                       valorElemento: this.valorAuto[0].VALOR,
@@ -176,7 +176,7 @@ export class CotizacionComponent implements OnInit {
                       dataDetalleCotizacion.push(
                         {
                           idDetalleCotizacion: contador,
-                          descCotizacion: 'Valor parte',
+                          descCotizacion: 'Parte',
                           nombre: parte.PARTE,
                           elemento: parte.ID,
                           valorElemento: parte.PRECIO,
@@ -186,7 +186,7 @@ export class CotizacionComponent implements OnInit {
                     contador ++;
                     dataDetalleCotizacion.push({
                       idDetalleCotizacion: contador,
-                      descCotizacion: 'Valor de tramite',
+                      descCotizacion: 'Tramite',
                       nombre: 'Seguro',
                       elemento: idHistoricoPreciosRegistro,
                       valorElemento: this.matricula,
@@ -194,7 +194,7 @@ export class CotizacionComponent implements OnInit {
                     contador ++;
                     dataDetalleCotizacion.push({
                       idDetalleCotizacion: contador,
-                      descCotizacion: 'Valor de tramite',
+                      descCotizacion: 'Tramite',
                       nombre: 'Matricula',
                       elemento: (idHistoricoPreciosRegistro+1),
                       valorElemento: this.seguro,
@@ -251,8 +251,8 @@ export class CotizacionComponent implements OnInit {
 
     var fila = new Array();
     fila.push("Elemento");
-    fila.push("Descripcion detalle");
-    fila.push("Nombre Elemento");
+    fila.push("Item");
+    fila.push("Nombre Item");
     fila.push("Valor");
     body.push(fila);
 

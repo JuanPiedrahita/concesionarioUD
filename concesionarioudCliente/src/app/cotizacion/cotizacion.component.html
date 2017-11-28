@@ -7,10 +7,10 @@
         </form>
       </div>
 
-      <div class="col" >
+      <div class="col" *ngIf="cliente!=''" >
         <h2>Cliente</h2>
-        <h3 *ngIf="cliente!=''"> Nombre: {{cliente}} </h3>
-        <h3 *ngIf="cliente!=''"> Documento: {{idCliente}} </h3>
+        <h3> Nombre: {{cliente}} </h3>
+        <h3> Documento: {{idCliente}} </h3>
         <h2> Contacto del cliente</h2>
         <h3 *ngFor="let contacto of contactosCliente"> {{contacto.TIPO}}: {{contacto.CONTACTO}} </h3>
       </div>

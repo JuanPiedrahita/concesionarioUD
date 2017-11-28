@@ -60,6 +60,19 @@
   });
 
 
+  router.get('/estadoCotizacion', function(request,response){
+    var idCotizacion = request.query.id;
+    sql = "select t.nombretipoproceso estado from proceso p, tipoproceso t where t.idtipoproceso=p.idtipoproceso and rownum<=1 and idCotizacion=:idCotizacion order by p.idtipoproceso desc";
+    basicOracle.open(request.query.user,request.query.pass,sql,[idCotizacion],false,response);
+    response.end;
+  });
+
+  router.get('/detallesCotizacion', function(request,response){
+    var idCotizacion = request.query.id;
+    sql = "select * from detalleCotizacion where idCotizacion=:idCotizacion";
+    basicOracle.open(request.query.user,request.query.pass,sql,[idCotizacion],false,response);
+    response.end;
+  });
 
  router.get('/parteLujo', function(request,response){
     sql = "select p.idParte id, p.nombreParte parte, h.precioParte precio from parte p, histoPrecioParte h, tipoParte tp where tp.idTipoParte=3 and tp.idTipoParte=p.idTipoParte and h.idParte=p.idParte";
@@ -70,6 +83,13 @@
   router.get('/auto', function(request,response){
     sql = "select vim vin, nombreAuto nombre from auto";
     basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
+    response.end;
+  });
+
+  router.get('/cotizacionPago', function(request,response){
+    var cliente = request.query.idCliente;
+    sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30";
+    basicOracle.open(request.query.user,request.query.pass,sql,[cliente],false,response);
     response.end;
   });
 
@@ -163,9 +183,10 @@
                             var descCotizacion = detalle.descCotizacion;
                             var elemento = detalle.elemento;
                             var valorElemento = detalle.valorElemento; 
-                            var sentencia = "insert into detalleCotizacion values (:idDetalleCotizacion,:descCotizacion,:idCotizacion,:elemento,:valorElemento)";
+                            var nombreDetalle = detalle.nombre;
+                            var sentencia = "insert into detalleCotizacion values (:idDetalleCotizacion,:descCotizacion,:idCotizacion,:elemento,:valorElemento,:nombreDetalle)";
                             promesas.push(
-                              basicOracle.insert(conexion,sentencia,[idDetalleCotizacion,descCotizacion,idCotizacion,elemento,valorElemento],response)
+                              basicOracle.insert(conexion,sentencia,[idDetalleCotizacion,descCotizacion,idCotizacion,elemento,valorElemento,nombreDetalle],response)
                             );
                             console.log("detalle",arrDet[i])
                           }

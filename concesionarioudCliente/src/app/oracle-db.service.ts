@@ -23,6 +23,9 @@ export class OracleDbService {
   parteLujo: string = "parteLujo";
   maximo: string = "maximo";
   postCotizar: string = "postCotizacion";
+  cotizacionPago: string = "cotizacionPago";
+  estadoCotizacion: string = "estadoCotizacion";
+  detallesCotizacion: string = "detallesCotizacion";
 
   constructor(private http: Http) { }
 
@@ -63,6 +66,10 @@ export class OracleDbService {
     return this.oracleGet(this.empleado, null);
   }
 
+  getCotizacionPago(id: number){
+    return this.oracleGet(this.cotizacionPago, {idCliente: id});
+  }
+
   getEmpleado(id: string){
     return this.oracleGet(this.empleado, {usuario: id});
   }
@@ -73,6 +80,14 @@ export class OracleDbService {
 
   getAutoCaracteristica(id: number){
     return this.oracleGet(this.autoCaracteristica, {id: id});
+  }
+
+  getEstadoCotizacion(id: number){
+    return this.oracleGet(this.estadoCotizacion, {id: id});
+  }
+
+  getDetallesCotizacion(id: number){
+    return this.oracleGet(this.detallesCotizacion, {id: id});
   }
 
   getValorAuto(id: number){

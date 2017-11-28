@@ -15,6 +15,7 @@ import { OracleDbService } from './oracle-db.service'
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { CotizacionComponent } from './cotizacion/cotizacion.component';
+import { AcordarPagoComponent } from './acordar-pago/acordar-pago.component';
 
 declare var require: any;
 
@@ -22,7 +23,8 @@ declare var require: any;
   declarations: [
     AppComponent,
     HomeComponent,
-    CotizacionComponent
+    CotizacionComponent,
+    AcordarPagoComponent
   ],
   imports: [
     BrowserModule,
