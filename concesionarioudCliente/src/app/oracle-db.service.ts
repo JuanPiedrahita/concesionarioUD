@@ -26,6 +26,9 @@ export class OracleDbService {
   cotizacionPago: string = "cotizacionPago";
   estadoCotizacion: string = "estadoCotizacion";
   detallesCotizacion: string = "detallesCotizacion";
+  modalidadPago: string = "modalidadPago";
+  bancos:string = "bancos";
+  postAcuerdoPago: string = "postAcuerdoPago";
 
   constructor(private http: Http) { }
 
@@ -56,6 +59,10 @@ export class OracleDbService {
       params: new URLSearchParams(this.addUserParams(parametros)).toString()
     });
     //}).toPromise();
+  }
+
+  postAcuerdo(parametro: any){
+    return this.oraclePost(this.postAcuerdoPago, parametro);
   }
 
   postCotizacion(parametro: any){
@@ -100,6 +107,14 @@ export class OracleDbService {
 
   getAuto(){
     return this.oracleGet(this.auto, null);
+  }
+
+  getBancos(){
+    return this.oracleGet(this.bancos, null);
+  }
+
+  getModalidadPago(){
+    return this.oracleGet(this.modalidadPago, null);
   }
 
   getParteLujo(){

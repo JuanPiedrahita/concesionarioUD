@@ -152,3 +152,12 @@ insert into aseguradora values (1,'Seguros del estado',0);
 
 insert into tipoRegistro values (1,'Tramite del seguro');
 insert into tipoRegistro values (2,'Tramite de matricula');
+
+insert into modalidaddepago values (1,'Crédito bancario','Crédito bancario');
+insert into modalidaddepago values (2,'Crédito tarjeta','Crédito tarjeta');
+insert into modalidaddepago values (3,'Efectivo tarjeta','Efectivo tarjeta');
+insert into modalidaddepago values (4,'Efectivo','Efectivo');
+
+insert into banco values (1,'Colpatria','juangonzalez1597@gmail.com');
+insert into banco values (2,'Caja social','juangonzalez1597@gmail.com');
+insert into banco values (3,'Bancolombia','juangonzalez1597@gmail.com');

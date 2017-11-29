@@ -112,10 +112,69 @@
     response.end;
   });
 
+  router.get('/modalidadPago',function(request, response){
+      sql = "select * from modalidaddePago",
+      basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
+      response.end;
+  });
+
+  router.get('/bancos',function(request, response){
+      sql = "select * from banco",
+      basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
+      response.end;
+  });
+
   router.get('/login',function(request, response){
   		sql = "select user from dual",
   		basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
   		response.end;
+  });
+
+  router.post('/postAcuerdoPago',function(request, response){
+    console.log("params", request.query);
+      response.header('Access-Control-Allow-Origin', '*'); 
+      response.header('Access-Control-Allow-Methods', 'GET, POST');
+      response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+      var idCotizacion = parseInt(request.query.idCotizacion);
+      var fechaAcuerdo = new Date(request.query.fechaAcuerdoPago);
+      fechaAcuerdo.setDate(fechaAcuerdo.getDate()+1);
+      var acuerdos = JSON.parse(decodeURIComponent(request.query.acuerdos));
+      console.log(acuerdos);
+      var connection = basicOracle.getConnection(request.query.user, request.query.pass,response);
+      connection.then(function(conexion){
+        var promesas = [];
+        for(var i = 0; i<acuerdos.length; i++){
+          var acuerdo = acuerdos[i];
+          var idAcuerdoPago = acuerdo.idAcuerdoPago;
+          var idModalidadDePago = acuerdo.idModalidad;
+          var porcentaje = acuerdo.porcentaje;
+          var valor = parseFloat(acuerdo.valor).toFixed(2);
+          console.log(valor)
+          var partepct = acuerdo.partepct;
+
+          var idBanco = acuerdo.idBanco;
+          var nombreBanco = acuerdo.nombreBanco;
+
+          console.log("idBanco",idBanco);
+          if(nombreBanco==='' || nombreBanco===undefined){
+            var sentencia = "insert into acuerdoPago (idAcuerdoPago,fechaAcuerdo,idModalidadDePago,idCotizacion,porcentaje,valor,partepct,valido) values (:idAcuerdoPago,:fechaAcuerdo,:idModalidadDePago,:idCotizacion,:porcentaje,:valor,:partepct,'si')";
+            promesas.push(
+              basicOracle.insert(conexion,sentencia,[idAcuerdoPago,fechaAcuerdo,idModalidadDePago,idCotizacion,porcentaje,valor,partepct],response)
+            );
+          }else{
+            var sentencia = "insert into acuerdoPago (idAcuerdoPago,fechaAcuerdo,idBanco,idModalidadDePago,idCotizacion,porcentaje,valor,partepct,valido) values (:idAcuerdoPago,:fechaAcuerdo,:idBanco,:idModalidadDePago,:idCotizacion,:porcentaje,:valor,:partepct,'si')";
+            promesas.push(
+              basicOracle.insert(conexion,sentencia,[idAcuerdoPago,fechaAcuerdo,idBanco,idModalidadDePago,idCotizacion,porcentaje,valor,partepct],response)
+            );
+          }
+        }
+        Promise.all(promesas).then(function(){
+          basicOracle.insert(conexion,"commit",[],response).then(function(){
+          response.contentType('application/json').status(200);
+          response.send(JSON.stringify("Inserta Acuerdos de pago"));  
+          });      
+        });
+      });
   });
 
   router.post('/postCotizacion', function(request, response){
@@ -148,7 +207,6 @@
       var arrDet = JSON.parse(decodeURIComponent(request.query.detallesCotizacion));
       console.log("detalles",arrDet);
 
-      
 
       var connection = basicOracle.getConnection(request.query.user, request.query.pass,response);
       connection.then(function(conexion){
