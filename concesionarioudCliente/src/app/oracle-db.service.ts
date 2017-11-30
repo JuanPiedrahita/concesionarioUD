@@ -30,6 +30,7 @@ export class OracleDbService {
   modalidadPago: string = "modalidadPago";
   bancos:string = "bancos";
   postAcuerdoPago: string = "postAcuerdoPago";
+  postEstado: string = "postCambiarEstado";
 
   constructor(private http: Http) { }
 
@@ -60,6 +61,10 @@ export class OracleDbService {
       params: new URLSearchParams(this.addUserParams(parametros)).toString()
     });
     //}).toPromise();
+  }
+
+  postCambioEstado(parametro: any){
+    return this.oraclePost(this.postEstado, parametro);
   }
 
   postAcuerdo(parametro: any){

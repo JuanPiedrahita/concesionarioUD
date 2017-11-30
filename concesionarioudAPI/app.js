@@ -86,7 +86,8 @@
 
   router.get('/estadoCotizacion', function(request,response){
     var idCotizacion = request.query.id;
-    sql = "select t.nombretipoproceso estado from proceso p, tipoproceso t where t.idtipoproceso=p.idtipoproceso and rownum<=1 and idCotizacion=:idCotizacion order by p.idtipoproceso desc";
+    //sql = "select t.nombretipoproceso estado from proceso p, tipoproceso t where t.idtipoproceso=p.idtipoproceso and rownum<=1 and idCotizacion=:idCotizacion order by p.idtipoproceso desc";
+    sql = "select t.nombretipoproceso estado from proceso p, tipoproceso t where t.idtipoproceso=p.idtipoproceso and idCotizacion=:idCotizacion and p.activo like 'si'";
     basicOracle.open(request.query.user,request.query.pass,sql,[idCotizacion],false,response);
     response.end;
   });
@@ -163,6 +164,40 @@
   		sql = "select user from dual",
   		basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
   		response.end;
+  });
+
+  router.post('/postCambiarEstado',function(request,response){
+    console.log("params", request.query);
+    response.header('Access-Control-Allow-Origin', '*'); 
+    response.header('Access-Control-Allow-Methods', 'GET, POST');
+    response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
+    var fechaProceso = new Date();
+    fechaProceso.setDate(fechaProceso.getDate()+1)
+
+    var idCotizacion = parseInt(request.query.idCotizacion);
+
+    var connection = basicOracle.getConnection(request.query.user, request.query.pass,response);
+    connection.then(function(conexion){
+      var sqlUpdateProceso = "update proceso set activo='no' where idcotizacion=:idCotizacion"; 
+      var sqlCreditoAprobado = "insert into proceso values ((select max(idProceso)+1 from proceso), 'Se aprueba credito', (select idTipoproceso from Tipoproceso where nombreTipoProceso like 'Credito Aprobado'),:idCotizacion,:fechaProceso,'no')";
+      var sqlAcuerdoPagoCredito = "insert into proceso values ((select max(idProceso)+1 from proceso), 'Confirma credito', (select idTipoproceso from Tipoproceso where nombreTipoProceso like 'Acuerdo Pago Credito'),:idCotizacion,:fechaProceso,'si')"; 
+    
+      basicOracle.insert(conexion,sqlUpdateProceso,[idCotizacion],response)
+      .then(function(){
+        basicOracle.insert(conexion,sqlCreditoAprobado,[idCotizacion,fechaProceso],response)
+        .then(function(){
+          basicOracle.insert(conexion,sqlAcuerdoPagoCredito,[idCotizacion,fechaProceso],response)
+          .then(function(){
+            basicOracle.insert(conexion,"commit",[],response).then(function(){
+              response.contentType('application/json').status(200);
+              response.send(JSON.stringify("Actualiza Registro"));  
+            });    
+          });
+        });
+      });
+
+    });   
   });
 
   router.post('/postAcuerdoPago',function(request, response){

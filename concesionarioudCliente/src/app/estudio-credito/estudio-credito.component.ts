@@ -60,4 +60,16 @@ export class EstudioCreditoComponent implements OnInit {
     }
   }
 
+  cambiarEstado(){
+    this.oracle.postCambioEstado({
+      idCotizacion:this.cotizacion
+    }).toPromise()
+    .then(()=>{
+      alert("Se cambio el estado correctamente");
+      this.router.navigate([""]);
+    })
+    .catch(()=>{
+      alert("No se pudo cambiar el estado");
+    });
+  }
 }
