@@ -24,6 +24,7 @@ export class OracleDbService {
   maximo: string = "maximo";
   postCotizar: string = "postCotizacion";
   cotizacionPago: string = "cotizacionPago";
+  cotizacionCredito: string = "cotizacionCredito";
   estadoCotizacion: string = "estadoCotizacion";
   detallesCotizacion: string = "detallesCotizacion";
   modalidadPago: string = "modalidadPago";
@@ -75,6 +76,10 @@ export class OracleDbService {
 
   getCotizacionPago(id: number){
     return this.oracleGet(this.cotizacionPago, {idCliente: id});
+  }
+
+  getCotizacionCredito(id: number){
+    return this.oracleGet(this.cotizacionCredito, {idCliente: id});
   }
 
   getEmpleado(id: string){

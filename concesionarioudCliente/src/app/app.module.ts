@@ -16,6 +16,7 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { CotizacionComponent } from './cotizacion/cotizacion.component';
 import { AcordarPagoComponent } from './acordar-pago/acordar-pago.component';
+import { EstudioCreditoComponent } from './estudio-credito/estudio-credito.component';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { AcordarPagoComponent } from './acordar-pago/acordar-pago.component';
     AppComponent,
     HomeComponent,
     CotizacionComponent,
-    AcordarPagoComponent
+    AcordarPagoComponent,
+    EstudioCreditoComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,48 @@
+<div class="center">
+  <h1>Estudio de Credito</h1>
+</div>
+
+<div class="">
+  <form>
+    <h2> Consultar cotizacion </h2>
+    <input [(ngModel)]="documentoCliente" name="cedula" class="txt" placeholder="Digite el documento del cliente" style="width:70%">
+    <input (click)="consultarCotizaciones()" class="btn" type="submit" value="Consultar Cotizaciones" style="display:inline">
+  </form>
+</div>
+
+<div *ngIf="cotizaciones.length>0">
+  <form>
+    <h2> Seleccionar cotizacion </h2>
+    <select [(ngModel)]="cotizacion" (ngModelChange)="cargarCotizacion($event)" name="auto" class="txt" style="width:70%">
+      <option *ngFor="let cotizacion of cotizaciones" value="{{cotizacion.IDCOTIZACION}}">Cotizacion {{cotizacion.IDCOTIZACION}} de {{cotizacion.FECHACOTIZACION | date: "dd/MM/yyyy" }} por valor de {{cotizacion.TOTALCOTIZACION}}</option>
+    </select>
+  </form>
+</div>
+
+<div *ngIf="mostarDetalles">
+  <h2> Información de la cotizacion </h2>
+
+  <h3> Estado: {{dataCotizacion.ESTADO}}</h3>
+  <h3> Fecha: {{dataCotizacion.FECHA | date: "dd/MM/yyyy"}}</h3>
+  <h3> Total: {{dataCotizacion.TOTAL}}</h3>
+
+  <h2> Detalles de la cotizacion </h2>
+
+  <table style="width:100%; text-align:left">
+    <tr>
+      <th>TIPO ITEM </th>
+      <th>ITEM </th>
+      <th>PRECIO </th>
+    </tr>
+    <tr *ngFor="let detalle of detallesCotizacion">
+      <th> {{detalle.DESCCOTIZACION}} </th>
+      <th> {{detalle.NOMBREDETALLE}}</th>
+      <th> {{detalle.VALORELEMENTO}}</th>
+    </tr>
+    <tr>
+      <th>TOTAL COTIZACION</th>
+      <th> </th>
+      <th>{{dataCotizacion.TOTAL}} </th>
+    </tr>
+  </table>
+</div>

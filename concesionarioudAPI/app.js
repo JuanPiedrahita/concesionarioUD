@@ -119,6 +119,15 @@
     response.end;
   });
 
+  router.get('/cotizacionCredito', function(request,response){
+    var cliente = request.query.idCliente;
+    // select * from proceso where idcotizacion=194 and idTipoProceso=(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Acuerdo Pago') and idProceso=(select max(idProceso) from proceso where idCotizacion=193)
+    sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30 and idCotizacion in (select idcotizacion from proceso where idTipoProceso=(select idTipoproceso from tipoproceso where nombretipoproceso like 'Estudio credito') and activo like 'si')"
+   // sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30";
+    basicOracle.open(request.query.user,request.query.pass,sql,[cliente],false,response);
+    response.end;
+  });
+
 
   router.get('/maximo',function(request, response){
     tabla = request.query.tabla;
