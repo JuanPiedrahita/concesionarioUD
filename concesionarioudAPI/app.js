@@ -112,7 +112,9 @@
 
   router.get('/cotizacionPago', function(request,response){
     var cliente = request.query.idCliente;
-    sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30";
+    // select * from proceso where idcotizacion=194 and idTipoProceso=(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Acuerdo Pago') and idProceso=(select max(idProceso) from proceso where idCotizacion=193)
+    sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30 and idCotizacion in (select idcotizacion from proceso where idTipoProceso=(select idTipoproceso from tipoproceso where nombretipoproceso like 'Cotizacion') and activo like 'si')"
+   // sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30";
     basicOracle.open(request.query.user,request.query.pass,sql,[cliente],false,response);
     response.end;
   });
@@ -208,18 +210,22 @@
           }
         }
         Promise.all(promesas).then(function(){
-          var sqlProceso = "";
+          var sqlUpdateProceso = "update proceso set activo='no' where idcotizacion=:idCotizacion";
           if(!hayBanco){
-            sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Se acuerda pago',(select idtipoproceso from tipoproceso where nombreTipoProceso like '%Acuerdo%'), :idCotizacion,:fechaAcuerdo)"
+            sqlUpdate = 
+            sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Se acuerda pago',(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Acuerdo Pago'), :idCotizacion,:fechaAcuerdo,'si')"
           }else{
-            sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Se estudia credito',(select idtipoproceso from tipoproceso where nombreTipoProceso like '%credito%'), :idCotizacion,:fechaAcuerdo)"
+            sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Se estudia credito',(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Estudio credito'), :idCotizacion,:fechaAcuerdo,'si')"
           }
-          basicOracle.insert(conexion, sqlProceso,[idCotizacion,fechaAcuerdo],response)
+          basicOracle.insert(conexion,sqlUpdateProceso,[idCotizacion],response)
           .then(function(){
-            basicOracle.insert(conexion,"commit",[],response).then(function(){
-            response.contentType('application/json').status(200);
-            response.send(JSON.stringify("Inserta Acuerdos de pago"));  
-            });    
+            basicOracle.insert(conexion, sqlProceso,[idCotizacion,fechaAcuerdo],response)
+            .then(function(){
+              basicOracle.insert(conexion,"commit",[],response).then(function(){
+              response.contentType('application/json').status(200);
+              response.send(JSON.stringify("Inserta Acuerdos de pago"));  
+              });    
+            });
           });
         });
       });
@@ -259,7 +265,7 @@
       var connection = basicOracle.getConnection(request.query.user, request.query.pass,response);
       connection.then(function(conexion){
          sql1 = "insert into cotizacion values (:idCotizacion,:fechaCotizacion,:vigencia,:idCliente,:idEmpleado,:totalCotizacion)";
-         sql2 = "insert into proceso values (:idProceso, :descripcionProceso, :idTipoProceso,:idCotizacion,:fechaCotizacion)";
+         sql2 = "insert into proceso values (:idProceso, :descripcionProceso, :idTipoProceso,:idCotizacion,:fechaCotizacion,'si')";
          sqlseguro = "insert into registro (idRegistro,idTipoRegistro,idAseguradora,idCotizacion,idAsesor) values (:idSeguro,1,1,:idCotizacion,:idEmpleado)";
          sqlMatricula = "insert into registro (idRegistro, idTipoRegistro,idCotizacion,idAsesor) values (:idMatricula,2,:idCotizacion,:idEmpleado)" ;
          sqlHistoricoSeguro = "insert into HistoricoPreciosReg values (:idHistoricoSeguro,'Valor seguro acordado',:idSeguro,:seguro)";

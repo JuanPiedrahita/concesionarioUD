@@ -331,7 +331,7 @@ export class CotizacionComponent implements OnInit {
     };
 
     pdfmaker.vfs = pdfFonts.pdfMake.vfs;
-    pdfmaker.createPdf(dd).download('cotizacion:' + data.idCotizacion + ',para cliente' + this.idCliente);
+    pdfmaker.createPdf(dd).download('cotizacion:' + data.idCotizacion + ',para cliente' + this.idCliente+".pdf");
   }
 
 }

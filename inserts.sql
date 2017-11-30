@@ -147,7 +147,7 @@ insert into empleado (idEmpleado,nombreEmpleado, ApellidoEmpleado,fechainicio,fe
 
 insert into tipoProceso values (1,'Cotizacion');
 insert into tipoProceso values (2,'Acuerdo Pago');
-insert into tipoProceso values (3,'Estudip credito');	
+insert into tipoProceso values (3,'Estudio credito');	
 
 ##inserts into registro
 insert into aseguradora values (1,'Seguros del estado',0);

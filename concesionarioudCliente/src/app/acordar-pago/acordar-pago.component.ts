@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { OracleDbService } from '../oracle-db.service';
 import { forEach } from '@angular/router/src/utils/collection';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-acordar-pago',
@@ -9,7 +10,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 })
 export class AcordarPagoComponent implements OnInit {
 
-  constructor(private oracle:OracleDbService) { }
+  constructor(private router: Router,private oracle:OracleDbService) { }
 
   documentoCliente: number;
   cotizaciones: any[];
@@ -73,6 +74,7 @@ export class AcordarPagoComponent implements OnInit {
       this.oracle.postAcuerdo(dataAcuerdos)
       .subscribe(responseAcuerdoPago => {
         alert("El acuerdo se registro exitosamente");
+        this.router.navigate([""]);
         console.log(responseAcuerdoPago.text());
       });
 
