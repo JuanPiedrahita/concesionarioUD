@@ -4,10 +4,34 @@
   var bodyParser = require("body-parser");
   var methodOverride = require("method-override");
   var basicOracle = require("./basicOracleDB");
+  var nodemailer = require('nodemailer');
 
   app.use(bodyParser.urlencoded({ extended:false }));
   app.use(bodyParser.json());
  // app.use(methodOverride());
+
+
+//funcion para enviar un correo electronico
+  var sendEmail = function(mailOptions) {  
+    var promise = new Promise(function(resolve,reject){
+      let transporter = nodemailer.createTransport({
+      //parametros del correo institucional
+      service: 'Gmail',
+      auth: {
+        user: 'consecionarioUD@gmail.com',
+        pass: 'BASES1UD',
+      }
+    })
+
+    //enviar correo
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) throw new Error(err)
+      resolve("email enviado");
+      console.log("email enviaod");
+    })
+    });
+    return promise;
+  }
 
   var router = express.Router();
   
@@ -135,11 +159,16 @@
       response.header('Access-Control-Allow-Origin', '*'); 
       response.header('Access-Control-Allow-Methods', 'GET, POST');
       response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+      var idCliente = parseInt(request.query.idCliente);
       var idCotizacion = parseInt(request.query.idCotizacion);
       var fechaAcuerdo = new Date(request.query.fechaAcuerdoPago);
       fechaAcuerdo.setDate(fechaAcuerdo.getDate()+1);
+      var idProceso = request.query.idProceso;
       var acuerdos = JSON.parse(decodeURIComponent(request.query.acuerdos));
       console.log(acuerdos);
+
+      var hayBanco = false;
+      //inicia carga de los acuerdos
       var connection = basicOracle.getConnection(request.query.user, request.query.pass,response);
       connection.then(function(conexion){
         var promesas = [];
@@ -154,6 +183,7 @@
 
           var idBanco = acuerdo.idBanco;
           var nombreBanco = acuerdo.nombreBanco;
+          var correoBanco = acuerdo.correoBanco;
 
           console.log("idBanco",idBanco);
           if(nombreBanco==='' || nombreBanco===undefined){
@@ -162,6 +192,15 @@
               basicOracle.insert(conexion,sentencia,[idAcuerdoPago,fechaAcuerdo,idModalidadDePago,idCotizacion,porcentaje,valor,partepct],response)
             );
           }else{
+            hayBanco = true
+
+            let mailOptions = {
+              from: '<juangonzalez1597@gmail.com>',
+              to: correoBanco,
+              subject: nombreBanco+': Solicitud de credito cliente '+idCliente,
+              html: '<h1> Señores '+nombreBanco+': </h1>' + '<h2> El cliente identificado con el numero '+idCliente+' solicita un credito por valor de '+valor+' </h2>'
+            }            
+            promesas.push(sendEmail(mailOptions));
             var sentencia = "insert into acuerdoPago (idAcuerdoPago,fechaAcuerdo,idBanco,idModalidadDePago,idCotizacion,porcentaje,valor,partepct,valido) values (:idAcuerdoPago,:fechaAcuerdo,:idBanco,:idModalidadDePago,:idCotizacion,:porcentaje,:valor,:partepct,'si')";
             promesas.push(
               basicOracle.insert(conexion,sentencia,[idAcuerdoPago,fechaAcuerdo,idBanco,idModalidadDePago,idCotizacion,porcentaje,valor,partepct],response)
@@ -169,10 +208,19 @@
           }
         }
         Promise.all(promesas).then(function(){
-          basicOracle.insert(conexion,"commit",[],response).then(function(){
-          response.contentType('application/json').status(200);
-          response.send(JSON.stringify("Inserta Acuerdos de pago"));  
-          });      
+          var sqlProceso = "";
+          if(!hayBanco){
+            sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Se acuerda pago',(select idtipoproceso from tipoproceso where nombreTipoProceso like '%Acuerdo%'), :idCotizacion,:fechaAcuerdo)"
+          }else{
+            sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Se estudia credito',(select idtipoproceso from tipoproceso where nombreTipoProceso like '%credito%'), :idCotizacion,:fechaAcuerdo)"
+          }
+          basicOracle.insert(conexion, sqlProceso,[idCotizacion,fechaAcuerdo],response)
+          .then(function(){
+            basicOracle.insert(conexion,"commit",[],response).then(function(){
+            response.contentType('application/json').status(200);
+            response.send(JSON.stringify("Inserta Acuerdos de pago"));  
+            });    
+          });
         });
       });
   });

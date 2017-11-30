@@ -145,7 +145,9 @@ insert into region values (1, 'central');
 insert into empleado (idEmpleado,nombreEmpleado, ApellidoEmpleado,fechainicio,fechafin,salariobase, idcargo,idregion,usuario) values (1,'sebastian','bohorquez','12/12/12','13/12/12',0,1,1,'cod20141020036');
 
 
-insert into tipoProceso values (1,'Cotizacion');	
+insert into tipoProceso values (1,'Cotizacion');
+insert into tipoProceso values (2,'Acuerdo Pago');
+insert into tipoProceso values (3,'Estudip credito');	
 
 ##inserts into registro
 insert into aseguradora values (1,'Seguros del estado',0);

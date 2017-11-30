@@ -65,6 +65,7 @@ export class AcordarPagoComponent implements OnInit {
 
       var dataAcuerdos = {
         idCotizacion: this.cotizacion,
+        idCliente: this.documentoCliente,
         fechaAcuerdoPago: fecha,
         acuerdos: JSON.stringify(acuerdos)
       }
@@ -95,9 +96,10 @@ export class AcordarPagoComponent implements OnInit {
   }
 
   agregar70(){
-    if(this.total70+this.porcentaje70<=70){
+    if(this.total70+this.porcentaje70<=70 && this.porcentaje70!==0){
       var nombreModalidad = "";
       var nombreBanco = "";
+      var correoBanco = "";
       for(let modalidad of this.modalidadesPago){
         if(modalidad.IDMODALIDAD==this.modalidad70){
           nombreModalidad = modalidad.NOMBREMODALIDAD;
@@ -107,6 +109,7 @@ export class AcordarPagoComponent implements OnInit {
         for(let banco of this.bancos){
           if(this.banco70==banco.IDBANCO){
             nombreBanco = banco.NOMBREBANCO;
+            correoBanco = banco.CORREOBANCO;
           }
         }
       }
@@ -118,6 +121,7 @@ export class AcordarPagoComponent implements OnInit {
         valor: this.porcentaje70*this.total/100,
         idBanco: this.banco70,
         nombreBanco: nombreBanco,
+        correoBanco: correoBanco,
         partepct:70,
       });
       this.contador70++;
@@ -140,9 +144,10 @@ export class AcordarPagoComponent implements OnInit {
   }
 
   agregar30(){
-    if(this.total30+this.porcentaje30<=30){
+    if(this.total30+this.porcentaje30<=30 && this.porcentaje30!==0){
       var nombreModalidad = "";
       var nombreBanco = "";
+      var correoBanco = "";
       for(let modalidad of this.modalidadesPago){
         if(modalidad.IDMODALIDAD==this.modalidad30){
           nombreModalidad = modalidad.NOMBREMODALIDAD;
@@ -152,6 +157,7 @@ export class AcordarPagoComponent implements OnInit {
         for(let banco of this.bancos){
           if(this.banco30==banco.IDBANCO){
             nombreBanco = banco.NOMBREBANCO;
+            correoBanco = banco.CORREOBANCO;
           }
         }
       }
@@ -163,6 +169,7 @@ export class AcordarPagoComponent implements OnInit {
         valor: this.porcentaje30*this.total/100,
         idBanco: this.banco30,
         nombreBanco: nombreBanco,
+        correoBanco: correoBanco,
         partepct:30,
       });
       this.contador30++;
