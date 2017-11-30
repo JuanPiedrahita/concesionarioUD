@@ -1,24 +1,24 @@
 ### inserts
 
-insert into cliente values (1,'juan','cubillos','david','calvachi','12/12/12');
-insert into cliente values (2,'johan','perez','ricardo','figueroa','12/12/12');
-insert into cliente values (3,'carlos','gutierrez','hernan','ardila','12/12/12');
+insert into cliente values (1,'juan','cubillos','david','calvachi','12/jul/12');
+insert into cliente values (2,'johan','perez','ricardo','figueroa','12/jul/12');
+insert into cliente values (3,'carlos','gutierrez','hernan','ardila','12/jul/12');
 
-insert into tipocontacto values (1,'telefono');
-insert into tipocontacto values (2,'correo');
-insert into tipocontacto values (3,'direccion');
+insert into tipocontacto (idtipocontacto,nombretipocont) values (1,'telefono');
+insert into tipocontacto (idtipocontacto,nombretipocont) values (2,'correo');
+insert into tipocontacto (idtipocontacto,nombretipocont) values (3,'direccion');
 
-insert into contacto values (1,'3125492286',1,1);
-insert into contacto values (2,'3125492286',1,2);
-insert into contacto values (3,'3125492286',1,3);
+insert into contacto values (1,'3125492283',1,1);
+insert into contacto values (2,'sbd@gmail.com',2,2);
+insert into contacto values (3,'3125492285',1,3);
 
 insert into contacto values (4,'juan.p15@hotmail.com',2,1);
-insert into contacto values (5,'juan.p15@hotmail.com',2,2);
-insert into contacto values (6,'juan.p15@hotmail.com',2,3);
+insert into contacto values (5,'3115567809',1,2);
+insert into contacto values (6,'juanito@hotmail.com',2,3);
 
 insert into contacto values (7,'bariloche 2 suba',3,1);
-insert into contacto values (8,'bariloche 2 suba',3,2);
-insert into contacto values (9,'bariloche 2 suba',3,3);
+insert into contacto values (8,'Quirigua',3,2);
+insert into contacto values (9,'fake st,Mosquera',3,3);
 
 insert into tipoCaracteristica values (1,'MARCA');
 insert into tipoCaracteristica values (2,'CLASE VEHICULO');
@@ -45,9 +45,9 @@ insert into caracteristica values (13,'automatica',7,11);
 insert into caracteristica values (14,'gasolina',8,12);
 insert into caracteristica values (15,'acpm',8,13);
 
-insert into auto values (111111,'12/12/12');
-insert into auto values (222222,'12/12/12');
-insert into auto values (333333,'12/12/12');
+insert into auto values (111111,'12/jul/12', 'Oroch');
+insert into auto values (222222,'12/jul/12','Duster');
+insert into auto values (333333,'12/jul/12','Sedan');
 
 insert into autocaracteristica (idAuto,idCaracteristica) values (111111,1);
 insert into autocaracteristica (idAuto,idCaracteristica) values (111111,2);
@@ -74,9 +74,9 @@ insert into autocaracteristica (idAuto,idCaracteristica) values (333333,11);
 insert into autocaracteristica (idAuto,idCaracteristica) values (333333,13);
 insert into autocaracteristica (idAuto,idCaracteristica) values (333333,15);
 
-insert into histoPreciosAuto values (1, 'precio inicial', '12/12/12',111111,123.123);
-insert into histoPreciosAuto values (2, 'precio inicial', '12/12/12',222222,123.123);
-insert into histoPreciosAuto values (3, 'precio inicial', '12/12/12',333333,222.222);
+insert into histoPreciosAuto values (1, 'precio inicial', '12/jul/12',111111,123.123);
+insert into histoPreciosAuto values (2, 'precio inicial', '12/jul/12',222222,123.123);
+insert into histoPreciosAuto values (3, 'precio inicial', '12/jul/12',333333,222.222);
 
 
 ##inserts de partes
@@ -98,18 +98,18 @@ insert into parte values (10,'bolsa de aire','parte del vehiculo',3);
 insert into parte values (11,'vidrio polarizado','parte del vehiculo',3);
 insert into parte values (13,'pantalla en asiento','parte del vehiculo',3);
 
-insert into histoPrecioParte values (1,'precio inicial',1,10.20,'12/12/12');
-insert into histoPrecioParte values (2,'precio inicial',2,20.20,'12/12/12');
-insert into histoPrecioParte values (3,'precio inicial',3,10.20,'12/12/12');
-insert into histoPrecioParte values (4,'precio inicial',4,20.20,'12/12/12');
-insert into histoPrecioParte values (5,'precio inicial',5,10.20,'12/12/12');
-insert into histoPrecioParte values (6,'precio inicial',6,20.20,'12/12/12');
-insert into histoPrecioParte values (7,'precio inicial',7,10.20,'12/12/12');
-insert into histoPrecioParte values (8,'precio inicial',8,20.20,'12/12/12');
-insert into histoPrecioParte values (9,'precio inicial',9,10.20,'12/12/12');
-insert into histoPrecioParte values (10,'precio inicial',10,10.20,'12/12/12');
-insert into histoPrecioParte values (11,'precio inicial',11,10.20,'12/12/12');
-insert into histoPrecioParte values (13,'precio inicial',13,10.20,'12/12/12');
+insert into histoPrecioParte values (1,'precio inicial',1,10.20,'12/jun/12');
+insert into histoPrecioParte values (2,'precio inicial',2,20.20,'12/jun/12');
+insert into histoPrecioParte values (3,'precio inicial',3,10.20,'12/jun/12');
+insert into histoPrecioParte values (4,'precio inicial',4,20.20,'12/jun/12');
+insert into histoPrecioParte values (5,'precio inicial',5,10.20,'12/jun/12');
+insert into histoPrecioParte values (6,'precio inicial',6,20.20,'12/jun/12');
+insert into histoPrecioParte values (7,'precio inicial',7,10.20,'12/jun/12');
+insert into histoPrecioParte values (8,'precio inicial',8,20.20,'12/jun/12');
+insert into histoPrecioParte values (9,'precio inicial',9,10.20,'12/jun/12');
+insert into histoPrecioParte values (10,'precio inicial',10,10.20,'12/jun/12');
+insert into histoPrecioParte values (11,'precio inicial',11,10.20,'12/jun/12');
+insert into histoPrecioParte values (13,'precio inicial',13,10.20,'12/jun/12');
 
 
 ##unir partes de auto  con auto
@@ -142,7 +142,7 @@ insert into cargo values (1, 'vendedor');
 
 insert into region values (1, 'central');
 
-insert into empleado (idEmpleado,nombreEmpleado, ApellidoEmpleado,fechainicio,fechafin,salariobase, idcargo,idregion,usuario) values (1,'sebastian','bohorquez','12/12/12','13/12/12',0,1,1,'cod20141020036');
+insert into empleado (idEmpleado,nombreEmpleado, ApellidoEmpleado,fechainicio,fechafin,salariobase, idcargo,idregion,usuario) values (1,'sebastian','bohorquez','12/jun/12','13/jul/12',0,1,1,'cod20141020036');
 
 
 insert into tipoProceso values (1,'Cotizacion');
