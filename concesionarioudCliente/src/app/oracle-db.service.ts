@@ -32,7 +32,9 @@ export class OracleDbService {
   bancos:string = "bancos";
   postAcuerdoPago: string = "postAcuerdoPago";
   postEstado: string = "postCambiarEstado";
-  detalles30: string = "detallesPagoTreinta"
+  detalles30: string = "detallesPagoTreinta";
+  gruposFinancieros: string = "grupoFinanciero";
+  tiposTarjeta: string = "tipoTarjeta";
 
   constructor(private http: Http) { }
 
@@ -123,6 +125,14 @@ export class OracleDbService {
 
   getAutoParte(id: number){
     return this.oracleGet(this.autoParte, {id: id});
+  }
+
+  getTipoTarjeta(){
+    return this.oracleGet(this.tiposTarjeta, null);
+  }
+
+  getGrupoFinanciero(){
+    return this.oracleGet(this.gruposFinancieros, null);
   }
 
   getAuto(){

@@ -48,18 +48,32 @@
 
   <h2> Detalles acuerdo de pago 30% </h2>
   
-    <table style="width:100%; text-align:left">
+    <table style="width:100%; text-align:left" border="1">
       <tr>
         <th>MODALIDAD DE PAGO</th>
-        <th>BANCO</th>
+        <th>BANCO/TARJETA</th>
         <th>PORCENTAJE</th>
         <th>VALOR </th>
+        <th>PAGO</th>
       </tr>
       <tr *ngFor="let detalle of detallesPago30">
-        <th> {{detalle.MODALIDADDEPAGO}} </th>
-        <th> {{detalle.BANCO}}</th>
-        <th> {{detalle.PORCENTAJE}}</th>
-        <th> {{detalle.VALOR}}</th>
+        <td> {{detalle.MODALIDADDEPAGO}} </td>
+        <td> 
+          <!--{{detalle.BANCO}}-->
+          <select *ngIf="detalle.IDMODALIDAD===1" [(ngModel)]="detalle.IDBANCO" name="auto" class="txt" >
+              <option *ngFor="let banco of bancos" value="{{banco.IDBANCO}}">{{banco.NOMBREBANCO}}</option>
+          </select>
+          <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.grupoFinanciero" name="auto" class="txt" >
+              <option *ngFor="let grupo of gruposFinancieros" value="{{grupo.IDGRUPO}}">{{grupo.NOMBREGRUPOFINANCIERO}}</option>
+          </select>
+          <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.tipoTarjeta" name="auto" class="txt">
+              <option *ngFor="let tarjeta of tiposTarjeta" value="{{tarjeta.IDTIPOTARJETA}}">{{tarjeta.DESCRIPCIONTIPOTARJETA}}</option>
+            </select> 
+        </td>
+        <td> <input type="number" [(ngModel)]="detalle.PORCENTAJE" style="width:70%"> </td>
+        <td> {{detalle.VALOR}}</td>
+        <td *ngIf="detalle.PAGO==='FALSE'"> <input type="checkbox"  [(ngModel)]="detalle.PAGADO">  </td>
+        <td *ngIf="detalle.PAGO==='TRUE'"> PAGADO  </td>
       </tr>
     </table>
   <br>

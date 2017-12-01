@@ -165,4 +165,17 @@ insert into modalidaddepago values (4,'Efectivo','Efectivo');
 insert into banco values (1,'Colpatria','juangonzalez1597@gmail.com');
 insert into banco values (2,'Caja social','juangonzalez1597@gmail.com');
 insert into banco values (3,'Bancolombia','juangonzalez1597@gmail.com');
- 
+
+insert into grupoFinanciero values (1,'Visa'); 
+insert into grupoFinanciero values (2,'Master'); 
+
+insert into tipoTarjeta values (1,'credito');
+insert into tipoTarjeta values (2,'debito');
+
+insert into tipoFactura values (1,'Factura por venta');
+
+insert into factura values (1,'12/12/12',4,1,1,);
+
+
+
+    

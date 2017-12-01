@@ -18,11 +18,38 @@ export class SepararAutoComponent implements OnInit {
   mostarDetalles: boolean = false;
   documentoCliente: number;
   detallesPago30: any[];
+  gruposFinancieros: any[];
+  tiposTarjeta: any[];
+  bancos:any[];
 
   constructor(private router: Router, private oracle: OracleDbService) { }
 
   ngOnInit() {
     this.cotizaciones = [];
+    this.oracle.getGrupoFinanciero()
+    .toPromise()
+    .then(responseGrupos =>{
+      this.gruposFinancieros = JSON.parse(responseGrupos.text());
+    })
+    .catch(()=>{
+      alert("No se pudieron cargar los grupos financieros, por favor recargue la página.");
+    });
+    this.oracle.getTipoTarjeta()
+    .toPromise()
+    .then(responseTarjeta =>{
+      this.tiposTarjeta = JSON.parse(responseTarjeta.text());
+    })
+    .catch(()=>{
+      alert("No se pudieron cargar los tipos de tarjeta, por favor recargue la página.");
+    });
+    this.oracle.getBancos()
+    .toPromise()
+    .then(responseBancos =>{
+      this.bancos = JSON.parse(responseBancos.text());
+    })
+    .catch(()=>{
+      alert("No se pudieron cargar los bancos, por favor recargue la página.");
+    });
   }
 
   cargarCotizacion(idCotizacion) {
@@ -45,6 +72,9 @@ export class SepararAutoComponent implements OnInit {
             .toPromise()
             .then(responseDetalles30 => {
               this.detallesPago30 = JSON.parse(responseDetalles30.text());
+              this.detallesPago30.forEach(detalle => {
+                detalle["PAGADO"] = detalle.PAGO==='TRUE';
+              });
               this.mostarDetalles = true;
             })
             .catch(()=>{
@@ -78,5 +108,7 @@ export class SepararAutoComponent implements OnInit {
     }
   }
 
-
+  separarAuto(){
+    console.log(this.detallesPago30);
+  }
 }

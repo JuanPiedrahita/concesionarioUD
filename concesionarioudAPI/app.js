@@ -95,7 +95,7 @@
   router.get('/detallesPagoTreinta', function(request,response){
     var idCotizacion = request.query.id;
     //sql = "select t.nombretipoproceso estado from proceso p, tipoproceso t where t.idtipoproceso=p.idtipoproceso and rownum<=1 and idCotizacion=:idCotizacion order by p.idtipoproceso desc";
-    sql = "select m.nombremodalidad modalidaddepago, a.porcentaje porcentaje, a.valor valor, b.nombrebanco banco, a.idacuerdoPago idacuerdopago, b.idbanco idbanco, m.idmodalidad idmodalidad from modalidaddepago m, acuerdoPago a, banco b where  b.idBanco=a.idBanco and m.idmodalidad=a.idmodalidaddepago and a.partepct=30 and a.valido='si' and a.idCotizacion=:idCotizacion and a.idBanco is not null union select m.nombremodalidad modalidaddepago, a.porcentaje porcentaje, a.valor valor, ' ' banco, a.idacuerdoPago idacuerdopago, 0 idbanco, m.idmodalidad idmodalidad from modalidaddepago m, acuerdoPago a where  m.idmodalidad=a.idmodalidaddepago and a.partepct=30 and a.valido='si' and a.idCotizacion=:idCotizacion and a.idBanco is null";
+    sql = "select m.nombremodalidad modalidaddepago, a.porcentaje porcentaje, a.valor valor, b.nombrebanco banco, a.idacuerdoPago idacuerdopago, b.idbanco idbanco, m.idmodalidad idmodalidad, nvl2(f.idacuerdopago,'TRUE','FALSE') pago from detallefactura f, modalidaddepago m, acuerdoPago a, banco b where f.idacuerdopago(+)=a.idacuerdopago and b.idBanco=a.idBanco and m.idmodalidad=a.idmodalidaddepago and a.partepct=30 and a.valido='si' and a.idCotizacion=:idCotizacion and a.idBanco is not null union select m.nombremodalidad modalidaddepago, a.porcentaje porcentaje, a.valor valor, ' ' banco, a.idacuerdoPago idacuerdopago, 0 idbanco, m.idmodalidad idmodalidad, nvl2(f.idacuerdopago,'TRUE','FALSE') pago from detallefactura f, modalidaddepago m, acuerdoPago a where  f.idacuerdopago(+)=a.idacuerdopago and m.idmodalidad=a.idmodalidaddepago and a.partepct=30 and a.valido='si' and a.idCotizacion=:idCotizacion and a.idBanco is null";
     basicOracle.open(request.query.user,request.query.pass,sql,[idCotizacion],false,response);
     response.end;
   });
@@ -109,6 +109,18 @@
 
  router.get('/parteLujo', function(request,response){
     sql = "select p.idParte id, p.nombreParte parte, h.precioParte precio from parte p, histoPrecioParte h, tipoParte tp where tp.idTipoParte=3 and tp.idTipoParte=p.idTipoParte and h.idParte=p.idParte";
+    basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
+    response.end;
+  });
+
+ router.get('/grupoFinanciero', function(request,response){
+    sql = "select * from grupoFinanciero";
+    basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
+    response.end;
+  });
+
+ router.get('/tipoTarjeta', function(request,response){
+    sql = "select * from tipoTarjeta";
     basicOracle.open(request.query.user,request.query.pass,sql,[],false,response);
     response.end;
   });
