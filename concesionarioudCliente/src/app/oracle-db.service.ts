@@ -25,12 +25,14 @@ export class OracleDbService {
   postCotizar: string = "postCotizacion";
   cotizacionPago: string = "cotizacionPago";
   cotizacionCredito: string = "cotizacionCredito";
+  cotizacionSeparar: string = "cotizacionSeparar";
   estadoCotizacion: string = "estadoCotizacion";
   detallesCotizacion: string = "detallesCotizacion";
   modalidadPago: string = "modalidadPago";
   bancos:string = "bancos";
   postAcuerdoPago: string = "postAcuerdoPago";
   postEstado: string = "postCambiarEstado";
+  detalles30: string = "detallesPagoTreinta"
 
   constructor(private http: Http) { }
 
@@ -79,6 +81,10 @@ export class OracleDbService {
     return this.oracleGet(this.empleado, null);
   }
 
+  getCotizacionSeparar(id: number){
+    return this.oracleGet(this.cotizacionSeparar, {idCliente: id});
+  }
+
   getCotizacionPago(id: number){
     return this.oracleGet(this.cotizacionPago, {idCliente: id});
   }
@@ -101,6 +107,10 @@ export class OracleDbService {
 
   getEstadoCotizacion(id: number){
     return this.oracleGet(this.estadoCotizacion, {id: id});
+  }
+
+  getDetallesPago30(id: number){
+    return this.oracleGet(this.detalles30, {id: id});
   }
 
   getDetallesCotizacion(id: number){

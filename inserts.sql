@@ -165,3 +165,4 @@ insert into modalidaddepago values (4,'Efectivo','Efectivo');
 insert into banco values (1,'Colpatria','juangonzalez1597@gmail.com');
 insert into banco values (2,'Caja social','juangonzalez1597@gmail.com');
 insert into banco values (3,'Bancolombia','juangonzalez1597@gmail.com');
+ 

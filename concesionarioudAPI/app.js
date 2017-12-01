@@ -92,6 +92,14 @@
     response.end;
   });
 
+  router.get('/detallesPagoTreinta', function(request,response){
+    var idCotizacion = request.query.id;
+    //sql = "select t.nombretipoproceso estado from proceso p, tipoproceso t where t.idtipoproceso=p.idtipoproceso and rownum<=1 and idCotizacion=:idCotizacion order by p.idtipoproceso desc";
+    sql = "select m.nombremodalidad modalidaddepago, a.porcentaje porcentaje, a.valor valor, b.nombrebanco banco, a.idacuerdoPago idacuerdopago, b.idbanco idbanco, m.idmodalidad idmodalidad from modalidaddepago m, acuerdoPago a, banco b where  b.idBanco=a.idBanco and m.idmodalidad=a.idmodalidaddepago and a.partepct=30 and a.valido='si' and a.idCotizacion=:idCotizacion and a.idBanco is not null union select m.nombremodalidad modalidaddepago, a.porcentaje porcentaje, a.valor valor, ' ' banco, a.idacuerdoPago idacuerdopago, 0 idbanco, m.idmodalidad idmodalidad from modalidaddepago m, acuerdoPago a where  m.idmodalidad=a.idmodalidaddepago and a.partepct=30 and a.valido='si' and a.idCotizacion=:idCotizacion and a.idBanco is null";
+    basicOracle.open(request.query.user,request.query.pass,sql,[idCotizacion],false,response);
+    response.end;
+  });
+
   router.get('/detallesCotizacion', function(request,response){
     var idCotizacion = request.query.id;
     sql = "select * from detalleCotizacion where idCotizacion=:idCotizacion";
@@ -120,10 +128,19 @@
     response.end;
   });
 
+  router.get('/cotizacionSeparar', function(request,response){
+    var cliente = request.query.idCliente;
+    // select * from proceso where idcotizacion=194 and idTipoProceso=(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Acuerdo Pago') and idProceso=(select max(idProceso) from proceso where idCotizacion=193)
+    sql = "select * from cotizacion where idCliente=:cliente  and idCotizacion in (select idcotizacion from proceso where idTipoProceso in (select idTipoproceso from tipoproceso where nombretipoproceso like 'Acuerdo Pago' or nombreTipoProceso like 'Acuerdo Pago Credito') and activo like 'si')"
+   // sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30";
+    basicOracle.open(request.query.user,request.query.pass,sql,[cliente],false,response);
+    response.end;
+  });
+
   router.get('/cotizacionCredito', function(request,response){
     var cliente = request.query.idCliente;
     // select * from proceso where idcotizacion=194 and idTipoProceso=(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Acuerdo Pago') and idProceso=(select max(idProceso) from proceso where idCotizacion=193)
-    sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30 and idCotizacion in (select idcotizacion from proceso where idTipoProceso=(select idTipoproceso from tipoproceso where nombretipoproceso like 'Estudio credito') and activo like 'si')"
+    sql = "select * from cotizacion where idCliente=:cliente  and idCotizacion in (select idcotizacion from proceso where idTipoProceso=(select idTipoproceso from tipoproceso where nombretipoproceso like 'Estudio credito') and activo like 'si')"
    // sql = "select * from cotizacion where idCliente=:cliente and (sysdate-fechacotizacion)<30";
     basicOracle.open(request.query.user,request.query.pass,sql,[cliente],false,response);
     response.end;
