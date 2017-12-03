@@ -135,7 +135,7 @@
       <th> {{pago.PORCENTAJE}}</th>
       <th> {{(pago.PORCENTAJE*total/100)}}</th>
       <th>
-        <input (click)="eliminar70(pago.indice)" class="btn" type="submit" value="Eliminar"> </th>
+        <input *ngIf="detalle.PAGADO" (click)="eliminar70(pago.indice)" class="btn" type="submit" value="Eliminar"> </th>
     </tr>
   </table>
   

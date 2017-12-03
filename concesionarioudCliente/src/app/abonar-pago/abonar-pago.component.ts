@@ -33,6 +33,7 @@ export class AbonarPagoComponent implements OnInit {
   modalidad70: number;
   contador70:number;
   modalidadesPago: any [];
+  idAcuerdoPago: number =0;
 
 
 
@@ -82,6 +83,7 @@ export class AbonarPagoComponent implements OnInit {
             this.dataCotizacion["FECHA"] = cotizacion.FECHACOTIZACION;
             this.dataCotizacion["TOTAL"] = cotizacion.TOTALCOTIZACION;
             this.total = cotizacion.TOTALCOTIZACION;
+ 
           }
         }
         this.oracle.getDetallesCotizacion(idCotizacion)
@@ -102,7 +104,7 @@ export class AbonarPagoComponent implements OnInit {
                   this.detallesPago70=JSON.parse(responseDetalles70.text());
                   this.contador70 = 1;
                   this.detallesPago70.forEach(detalle => {
-                    
+                    this.idAcuerdoPago = (this.idAcuerdoPago > detalle.IDACUERDOPAGO) ? this.idAcuerdoPago : detalle.IDACUERDOPAGO;
                     detalle["PAGADO"] = detalle.PAGO === 'TRUE';
                     detalle["grupoFinanciero"] = 1;
                     detalle["tipoTarjeta"] = 1;
@@ -113,6 +115,7 @@ export class AbonarPagoComponent implements OnInit {
                     this.contador70++;
                     console.log(detalle);
                   });
+                  this.idAcuerdoPago++;
                   this.mostarDetalles = true;
                 }).catch(()=>{
                   alert("No se pudo cargar los detalles del pago del 70, intente nuevamente.");
@@ -183,6 +186,7 @@ export class AbonarPagoComponent implements OnInit {
         }
       }
       this.detallesPago70.push({
+        IDACUERDOPAGO :0,
         indice: this.contador70,
         IDMODALIDAD: parseInt(this.modalidad70),
         MODALIDADDEPAGO: nombreModalidad,
@@ -197,6 +201,7 @@ export class AbonarPagoComponent implements OnInit {
         PAGADO: false,
         PAGO: 'FALSE',
       });
+
       console.log(this.detallesPago70)
       this.contador70++;
       this.total70 += this.porcentaje70;
@@ -216,16 +221,52 @@ export class AbonarPagoComponent implements OnInit {
     return banconame;
   }
 
+  registrarPago(){
+    var pagosHechos =[];
+    var total=0;
+    this.detallesPago70.forEach(detalle =>{
+      if (detalle.PAGO ==='FALSE' && detalle.PAGADO){
+        pagosHechos.push(detalle);
+        total+= detalle.VALOR;
+      }
+    });
+    if(pagosHechos.length>0){
+      this.oracle.getMaximo("factura").subscribe(responseIdFactura=>{
+        var idFactura=JSON.parse(responseIdFactura.text()).id;
+        var dataPagos = {
+          idCotizacion: this.cotizacion,
+          idCliente: this.documentoCliente,
+          idFactura: idFactura,
+          total: total,
+          detalles: JSON.stringify(pagosHechos),
+        }
+        this.oracle.postPagar(dataPagos).toPromise().then((responsePagos)=>{
+          alert(responsePagos.text());
+          this.router.navigate([""]);
+        }).catch(()=>{
+          alert('no se pudieron registrar los pagos');
+        });
+      });
+    }else{
+      alert('No se ha realizado ningun pago');
+    }
+
+  }
+
    abonarPago(){
     if(this.cambio){
-      
       if(this.total70==70){
-        alert('Se actualiza acuerdo de pago');
+        this.detallesPago70.forEach(detalle=>{
+          detalle.IDACUERDOPAGO= this.idAcuerdoPago;
+          this.idAcuerdoPago++;
+        });
         var dataUpdate={
           idCotizacion: this.cotizacion,
           detallesPago70: JSON.stringify(this.detallesPago70),
         };
         this.oracle.postAbonarUpdate(dataUpdate).toPromise().then(responseAbonarUpdate=>{
+          this.registrarPago();
+          this.cambio=false;
           alert(responseAbonarUpdate.text());
         }).catch(()=>{
           alert('No se pudo actualizar el acuerdo de pago');
@@ -235,6 +276,7 @@ export class AbonarPagoComponent implements OnInit {
       }
       
    }else{
-      alert('Se registra pago');
+      this.registrarPago();
+
    }
 }
