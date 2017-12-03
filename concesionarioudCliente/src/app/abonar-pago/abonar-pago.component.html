@@ -122,18 +122,18 @@
   
   <h3> Porcentaje total acordado {{total70}} % </h3>
   
-  <table style="width:100%; text-align:left" *ngIf="acuerdo70.length>0">
+  <table style="width:100%; text-align:left" *ngIf="detallesPago70.length>0">
     <tr>
       <th> MODALIDAD </th>
       <th> BANCO </th>
       <th> PORCENTAJE </th>
       <th> VALOR </th>
     </tr>
-    <tr *ngFor="let pago of acuerdo70">
-      <th> {{pago.modalidad}} </th>
+    <tr *ngFor="let pago of detallesPago70">
+      <th> {{pago.MODALIDADDEPAGO}} </th>
       <th> {{pago.nombreBanco}} </th>
-      <th> {{pago.porcentaje}}</th>
-      <th> {{pago.valor}}</th>
+      <th> {{pago.PORCENTAJE}}</th>
+      <th> {{(pago.PORCENTAJE*total/100)}}</th>
       <th>
         <input (click)="eliminar70(pago.indice)" class="btn" type="submit" value="Eliminar"> </th>
     </tr>
@@ -156,5 +156,5 @@
 
 
 <div class="center" *ngIf="mostarDetalles">
-  <input (click)="abonarPago" class="btn" type="submit" value="Separar auto">
+  <input (click)="abonarPago()" class="btn" type="submit" value="Abonar Pago">
 </div>

@@ -38,6 +38,7 @@ export class OracleDbService {
   gruposFinancieros: string = "grupoFinanciero";
   tiposTarjeta: string = "tipoTarjeta";
   cotizacionAbono: string= 'cotizacionAbono';
+  abonarUpdate: string= 'postAbonarUpdate';
 
 
   constructor(private http: Http) { }
@@ -73,6 +74,10 @@ export class OracleDbService {
 
   postSepararAuto(parametro: any){
     return this.oraclePost(this.postSeparar, parametro);
+  }
+
+  postAbonarUpdate(parametro: any){
+    return this.oraclePost(this.abonarUpdate, parametro);
   }
 
   postCambioEstado(parametro: any){
