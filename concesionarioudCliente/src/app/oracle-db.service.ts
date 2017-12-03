@@ -34,8 +34,11 @@ export class OracleDbService {
   postEstado: string = "postCambiarEstado";
   postSeparar: string = "postSepararAuto";
   detalles30: string = "detallesPagoTreinta";
+  detalles70: string = "detallesPagoSetenta";
   gruposFinancieros: string = "grupoFinanciero";
   tiposTarjeta: string = "tipoTarjeta";
+  cotizacionAbono: string= 'cotizacionAbono';
+
 
   constructor(private http: Http) { }
 
@@ -120,6 +123,10 @@ export class OracleDbService {
     return this.oracleGet(this.detalles30, {id: id});
   }
 
+  getDetallesPago70(id: number) {
+    return this.oracleGet(this.detalles70, { id: id });
+  }
+
   getDetallesCotizacion(id: number){
     return this.oracleGet(this.detallesCotizacion, {id: id});
   }
@@ -164,6 +171,9 @@ export class OracleDbService {
     return this.oracleGet(this.cliente, {id: idCliente});
   }
 
+  getCotizacionAbono(id: number) {
+    return this.oracleGet(this.cotizacionAbono, { idCliente: id });
+  }
   getLogin(user:string, pass: string){
     localStorage.setItem('user', user);
     localStorage.setItem('pass', pass);

@@ -1,0 +1,160 @@
+<div class="center">
+<h1>Abonar Pago</h1>
+</div>
+
+<div class="">
+  <form>
+    <h2> Consultar cotizacion </h2>
+    <input [(ngModel)]="documentoCliente" name="cedula" class="txt" placeholder="Digite el documento del cliente" style="width:70%">
+    <input (click)="consultarCotizaciones()" class="btn" type="submit" value="Consultar Cotizaciones" style="display:inline">
+  </form>
+</div>
+
+<div *ngIf="cotizaciones.length>0">
+  <form>
+    <h2> Seleccionar cotizacion </h2>
+    <select [(ngModel)]="cotizacion" (ngModelChange)="cargarCotizacion($event)" name="auto" class="txt" style="width:70%">
+      <option *ngFor="let cotizacion of cotizaciones" value="{{cotizacion.IDCOTIZACION}}">Cotizacion {{cotizacion.IDCOTIZACION}} de {{cotizacion.FECHACOTIZACION | date: "dd/MM/yyyy" }} por valor de {{cotizacion.TOTALCOTIZACION}}</option>
+    </select>
+  </form>
+</div>
+
+<div *ngIf="mostarDetalles">
+  <h2> Información de la cotizacion </h2>
+
+  <h3> Estado: {{dataCotizacion.ESTADO}}</h3>
+  <h3> Fecha: {{dataCotizacion.FECHA | date: "dd/MM/yyyy"}}</h3>
+  <h3> Total: {{dataCotizacion.TOTAL}}</h3>
+
+  <h2> Detalles de la cotizacion </h2>
+
+  <table style="width:100%; text-align:left">
+    <tr>
+      <th>TIPO ITEM </th>
+      <th>ITEM </th>
+      <th>PRECIO </th>
+    </tr>
+    <tr *ngFor="let detalle of detallesCotizacion">
+      <th> {{detalle.DESCCOTIZACION}} </th>
+      <th> {{detalle.NOMBREDETALLE}}</th>
+      <th> {{detalle.VALORELEMENTO}}</th>
+    </tr>
+    <tr>
+      <th>TOTAL COTIZACION</th>
+      <th> </th>
+      <th>{{dataCotizacion.TOTAL}} </th>
+    </tr>
+  </table>
+
+  <h2> Detalles acuerdo de pago 30% </h2>
+
+  <table style="width:100%; text-align:left" border="1">
+    <tr>
+      <th>MODALIDAD DE PAGO</th>
+      <th>BANCO/TARJETA</th>
+      <th>PORCENTAJE</th>
+      <th>VALOR </th>
+      <th>PAGO</th>
+    </tr>
+    <tr *ngFor="let detalle of detallesPago30">
+      <td> {{detalle.MODALIDADDEPAGO}} </td>
+      <td>
+        <!--{{detalle.BANCO}}-->
+        <select *ngIf="detalle.IDMODALIDAD===1" [(ngModel)]="detalle.IDBANCO" name="auto" class="txt" disabled>
+          <option selected *ngFor="let banco of bancos" value="{{banco.IDBANCO}}">{{banco.NOMBREBANCO}}</option>
+        </select>
+        <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.grupoFinanciero" name="auto" class="txt" disabled>
+          <option selected *ngFor="let grupo of gruposFinancieros" value="{{grupo.IDGRUPO}}">{{grupo.NOMBREGRUPOFINANCIERO}}</option>
+        </select>
+        <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.tipoTarjeta" name="auto" class="txt" disabled>
+          <option selected *ngFor="let tarjeta of tiposTarjeta" value="{{tarjeta.IDTIPOTARJETA}}">{{tarjeta.DESCRIPCIONTIPOTARJETA}}</option>
+        </select>
+      </td>
+      <td>
+        <input type="number" [(ngModel)]="detalle.PORCENTAJE" style="width:70%" disabled> </td>
+      <td> {{detalle.PORCENTAJE*dataCotizacion.TOTAL/100}}</td>
+      <td *ngIf="detalle.PAGO==='FALSE'">
+        <input type="checkbox" [(ngModel)]="detalle.PAGADO" disabled> </td>
+      <td *ngIf="detalle.PAGO==='TRUE'"> PAGADO </td>
+    </tr>
+  </table>
+  <br>
+
+  <h2> Detalles acuerdo de pago 70% </h2>
+  
+  <table style="width:100%; text-align:left" border="1">
+    <tr>
+      <th>MODALIDAD DE PAGO</th>
+      <th>BANCO/TARJETA</th>
+      <th>PORCENTAJE</th>
+      <th>VALOR </th>
+      <th>PAGO</th>
+    </tr>
+    <tr *ngFor="let detalle of detallesPago70">
+      <td> {{detalle.MODALIDADDEPAGO}} </td>
+      <td>
+        <!--{{detalle.BANCO}}-->
+        <select *ngIf="detalle.IDMODALIDAD===1" [(ngModel)]="detalle.IDBANCO" name="auto" class="txt" >
+          <option selected *ngFor="let banco of bancos" value="{{banco.IDBANCO}}">{{banco.NOMBREBANCO}}</option>
+        </select>
+        <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.grupoFinanciero" name="auto" class="txt"
+          >
+          <option selected *ngFor="let grupo of gruposFinancieros" value="{{grupo.IDGRUPO}}">{{grupo.NOMBREGRUPOFINANCIERO}}</option>
+        </select>
+        <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.tipoTarjeta" name="auto" class="txt"
+          >
+          <option selected *ngFor="let tarjeta of tiposTarjeta" value="{{tarjeta.IDTIPOTARJETA}}">{{tarjeta.DESCRIPCIONTIPOTARJETA}}</option>
+        </select>
+      </td>
+      <td>
+        <input type="number" [(ngModel)]="detalle.PORCENTAJE" style="width:70%" > </td>
+      <td> {{detalle.PORCENTAJE*dataCotizacion.TOTAL/100}}</td>
+      <td *ngIf="detalle.PAGO==='FALSE'">
+        <input type="checkbox" [(ngModel)]="detalle.PAGADO" > </td>
+      <td *ngIf="detalle.PAGO==='TRUE'"> PAGADO </td>
+    </tr>
+  </table>
+  <br>
+
+</div>
+<div *ngIf="mostarDetalles">
+  <h2> Modificar forma de pago 70%</h2>
+  
+  <h3> Porcentaje total acordado {{total70}} % </h3>
+  
+  <table style="width:100%; text-align:left" *ngIf="acuerdo70.length>0">
+    <tr>
+      <th> MODALIDAD </th>
+      <th> BANCO </th>
+      <th> PORCENTAJE </th>
+      <th> VALOR </th>
+    </tr>
+    <tr *ngFor="let pago of acuerdo70">
+      <th> {{pago.modalidad}} </th>
+      <th> {{pago.nombreBanco}} </th>
+      <th> {{pago.porcentaje}}</th>
+      <th> {{pago.valor}}</th>
+      <th>
+        <input (click)="eliminar70(pago.indice)" class="btn" type="submit" value="Eliminar"> </th>
+    </tr>
+  </table>
+  
+  
+  <form>
+    <h2> Agregar forma de pago 70 </h2>
+    <input [(ngModel)]="porcentaje70" name="porcentaje7" type="number" class="txt" placeholder="Escriba el porcentaje" style="width:70%">
+    <select [(ngModel)]="modalidad70" name="modalidad7" class="txt" style="width:70%">
+      <option *ngFor="let modalidad of modalidadesPago" value="{{modalidad.IDMODALIDAD}}">{{modalidad.NOMBREMODALIDAD}}</option>
+    </select>
+    <select *ngIf="modalidad70==1" [(ngModel)]="banco70" name="banco" class="txt" style="width:70%">
+      <option *ngFor="let banco of bancos" value="{{banco.IDBANCO}}">{{banco.NOMBREBANCO}}</option>
+    </select>
+    <input (click)="agregar70()" class="btn" type="submit" value="Agregar forma de pago">
+  </form>
+
+</div>
+
+
+<div class="center" *ngIf="mostarDetalles">
+  <input (click)="abonarPago" class="btn" type="submit" value="Separar auto">
+</div>

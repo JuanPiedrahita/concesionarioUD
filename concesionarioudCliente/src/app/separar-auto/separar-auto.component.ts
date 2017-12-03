@@ -32,7 +32,7 @@ export class SepararAutoComponent implements OnInit {
       this.gruposFinancieros = JSON.parse(responseGrupos.text());
     })
     .catch(()=>{
-      alert("No se pudieron cargar los grupos financieros, por favor recargue la página.");
+      alert('No se pudieron cargar los grupos financieros, por favor recargue la página.');
     });
     this.oracle.getTipoTarjeta()
     .toPromise()
