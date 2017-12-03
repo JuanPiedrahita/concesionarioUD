@@ -61,17 +61,17 @@
         <td> 
           <!--{{detalle.BANCO}}-->
           <select *ngIf="detalle.IDMODALIDAD===1" [(ngModel)]="detalle.IDBANCO" name="auto" class="txt" >
-              <option *ngFor="let banco of bancos" value="{{banco.IDBANCO}}">{{banco.NOMBREBANCO}}</option>
+              <option selected *ngFor="let banco of bancos" value="{{banco.IDBANCO}}">{{banco.NOMBREBANCO}}</option>
           </select>
           <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.grupoFinanciero" name="auto" class="txt" >
-              <option *ngFor="let grupo of gruposFinancieros" value="{{grupo.IDGRUPO}}">{{grupo.NOMBREGRUPOFINANCIERO}}</option>
+              <option selected *ngFor="let grupo of gruposFinancieros" value="{{grupo.IDGRUPO}}">{{grupo.NOMBREGRUPOFINANCIERO}}</option>
           </select>
           <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.tipoTarjeta" name="auto" class="txt">
-              <option *ngFor="let tarjeta of tiposTarjeta" value="{{tarjeta.IDTIPOTARJETA}}">{{tarjeta.DESCRIPCIONTIPOTARJETA}}</option>
+              <option selected *ngFor="let tarjeta of tiposTarjeta" value="{{tarjeta.IDTIPOTARJETA}}">{{tarjeta.DESCRIPCIONTIPOTARJETA}}</option>
             </select> 
         </td>
         <td> <input type="number" [(ngModel)]="detalle.PORCENTAJE" style="width:70%"> </td>
-        <td> {{detalle.VALOR}}</td>
+        <td> {{detalle.PORCENTAJE*dataCotizacion.TOTAL/100}}</td>
         <td *ngIf="detalle.PAGO==='FALSE'"> <input type="checkbox"  [(ngModel)]="detalle.PAGADO">  </td>
         <td *ngIf="detalle.PAGO==='TRUE'"> PAGADO  </td>
       </tr>

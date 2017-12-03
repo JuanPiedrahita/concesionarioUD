@@ -4,9 +4,9 @@ insert into cliente values (1,'juan','cubillos','david','calvachi','12/12/12');
 insert into cliente values (2,'johan','perez','ricardo','figueroa','12/12/12');
 insert into cliente values (3,'carlos','gutierrez','hernan','ardila','12/12/12');
 
-insert into tipocontacto values (1,'telefono');
-insert into tipocontacto values (2,'correo');
-insert into tipocontacto values (3,'direccion');
+insert into tipocontacto values (1,'telefono','telefono');
+insert into tipocontacto values (2,'correo','correo');
+insert into tipocontacto values (3,'direccion','direccion');
 
 insert into contacto values (1,'3125492286',1,1);
 insert into contacto values (2,'3125492286',1,2);
@@ -45,9 +45,9 @@ insert into caracteristica values (13,'automatica',7,11);
 insert into caracteristica values (14,'gasolina',8,12);
 insert into caracteristica values (15,'acpm',8,13);
 
-insert into auto values (111111,'12/12/12');
-insert into auto values (222222,'12/12/12');
-insert into auto values (333333,'12/12/12');
+insert into auto values (111111,'12/12/12','duster oruch');
+insert into auto values (222222,'12/12/12','duster black');
+insert into auto values (333333,'12/12/12','sandero');
 
 insert into autocaracteristica (idAuto,idCaracteristica) values (111111,1);
 insert into autocaracteristica (idAuto,idCaracteristica) values (111111,2);
@@ -150,6 +150,7 @@ insert into tipoProceso values (2,'Acuerdo Pago');
 insert into tipoProceso values (3,'Estudio credito');	
 insert into tipoProceso values (4,'Credito Aprobado');	
 insert into tipoProceso values (5,'Acuerdo Pago Credito');
+insert into tipoProceso values (6,'Auto Separado');
 
 ##inserts into registro
 insert into aseguradora values (1,'Seguros del estado',0);
@@ -174,7 +175,11 @@ insert into tipoTarjeta values (2,'debito');
 
 insert into tipoFactura values (1,'Factura por venta');
 
-insert into factura values (1,'12/12/12',4,1,1,);
+insert into tipoMovimientos values (1,'Separado');
+
+insert into estadoStock values (1,'Separado');
+
+insert into estadoStockParte values (1,'Separado');
 
 
 

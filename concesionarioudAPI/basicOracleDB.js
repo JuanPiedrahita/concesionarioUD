@@ -1,5 +1,6 @@
 var oracledb = require('oracledb');
 
+
 connectionString = {
 	user: "",
 	password: "",
@@ -31,7 +32,6 @@ function open(username,pass, sql, binds, dml, rs){
   	rs.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
 
 	oracledb.getConnection(connectionString, function(err,cn){
-
 		if(error(err,rs,null)==-1) return;
 		cn.execute(sql, binds, {autocommit: dml}, function(err,result){
 			if(error(err,rs,cn)==-1) return;
@@ -55,19 +55,21 @@ function open(username,pass, sql, binds, dml, rs){
 				}
 				rs.send(rows);
 			}
+			close(cn);
 		});
 	})
 
 }
 
+
 function getConnection(username, pass,rs){
 	var promise = new Promise(function(resolve, reject){
-		connectionString.user = username;
-		connectionString.password = pass;
-		oracledb.getConnection(connectionString, function(err,cn){
-			if(error(err,rs,cn)==-1) { reject(err); return;};
-			resolve(cn);
-		});
+			connectionString.user = username;
+			connectionString.password = pass;
+			oracledb.getConnection(connectionString, function(err,cn){
+				if(error(err,rs,cn)==-1) { reject(err); return;};
+				resolve(cn);
+			});
 	});
 	return promise;
 }
@@ -105,6 +107,7 @@ function getMaximo(username, pass, sql,rs){
 			}else{
 				rs.send({id: result.rows[0][0]});
 			}
+			close(cn);
 		});
 	});
 }
@@ -116,7 +119,7 @@ function close(cn){
 			function(err){
 				if(err) {console.error(err.message);}
 			}
-		);
+	);
 
 }
 

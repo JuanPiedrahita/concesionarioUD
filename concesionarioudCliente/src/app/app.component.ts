@@ -34,7 +34,7 @@ export class AppComponent  implements OnInit{
   logout() {
     localStorage.removeItem("user");
     localStorage.removeItem("pass");
-    this.logged = false;
+     this.logged = false;
   }
 
   login() {

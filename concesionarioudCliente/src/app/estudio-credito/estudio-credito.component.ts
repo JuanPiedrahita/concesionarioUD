@@ -52,7 +52,7 @@ export class EstudioCreditoComponent implements OnInit {
       subscribe(responseCotizacion => {
         this.cotizaciones = JSON.parse(responseCotizacion.text());
         if(this.cotizaciones.length === 0){
-          alert("El cliente digitado no tiene registrada ninguna cotización vigente.");
+          alert("El cliente digitado no tiene registrada ninguna cotización pendiente por estudiar crédito.");
         }
       });
     }else{

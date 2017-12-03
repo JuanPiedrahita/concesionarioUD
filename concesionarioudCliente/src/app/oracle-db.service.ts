@@ -32,6 +32,7 @@ export class OracleDbService {
   bancos:string = "bancos";
   postAcuerdoPago: string = "postAcuerdoPago";
   postEstado: string = "postCambiarEstado";
+  postSeparar: string = "postSepararAuto";
   detalles30: string = "detallesPagoTreinta";
   gruposFinancieros: string = "grupoFinanciero";
   tiposTarjeta: string = "tipoTarjeta";
@@ -65,6 +66,10 @@ export class OracleDbService {
       params: new URLSearchParams(this.addUserParams(parametros)).toString()
     });
     //}).toPromise();
+  }
+
+  postSepararAuto(parametro: any){
+    return this.oraclePost(this.postSeparar, parametro);
   }
 
   postCambioEstado(parametro: any){
@@ -158,7 +163,6 @@ export class OracleDbService {
   getCliente(idCliente: number){
     return this.oracleGet(this.cliente, {id: idCliente});
   }
-
 
   getLogin(user:string, pass: string){
     localStorage.setItem('user', user);
