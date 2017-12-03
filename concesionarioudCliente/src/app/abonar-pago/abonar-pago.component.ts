@@ -18,6 +18,7 @@ export class AbonarPagoComponent implements OnInit {
   cotizacion: number;
   detallesCotizacion: any[];
   mostarDetalles: boolean = false;
+  cambio: boolean = false;
   documentoCliente: number;
   detallesPago30: any[];
   detallesPago70: any [];
@@ -99,10 +100,18 @@ export class AbonarPagoComponent implements OnInit {
                 this.oracle.getDetallesPago70(idCotizacion).toPromise()
                 .then(responseDetalles70=>{
                   this.detallesPago70=JSON.parse(responseDetalles70.text());
+                  this.contador70 = 1;
                   this.detallesPago70.forEach(detalle => {
+                    
                     detalle["PAGADO"] = detalle.PAGO === 'TRUE';
                     detalle["grupoFinanciero"] = 1;
                     detalle["tipoTarjeta"] = 1;
+                    detalle.IDBANCO = parseInt(detalle.IDBANCO);
+                    detalle["nombreBanco"]= detalle.BANCO;
+                    detalle["NOMBREBANCO"]= detalle.BANCO;
+                    detalle["indice"]= this.contador70;
+                    this.contador70++;
+                    console.log(detalle);
                   });
                   this.mostarDetalles = true;
                 }).catch(()=>{
@@ -144,14 +153,15 @@ export class AbonarPagoComponent implements OnInit {
 
 
   eliminar70(indice) {
+    this.cambio=true;
     var iEliminar;
-    for (var i = 0; i < this.acuerdo70.length; i++) {
-      if (this.acuerdo70[i].indice == indice) {
+    for (var i = 0; i < this.detallesPago70.length; i++) {
+      if (this.detallesPago70[i].indice == indice) {
         iEliminar = i;
-        this.total70 -= this.acuerdo70[i].porcentaje;
+        this.total70 -= this.detallesPago70[i].PORCENTAJE;
       }
     }
-    this.acuerdo70.splice(iEliminar, 1);
+    this.detallesPago70.splice(iEliminar, 1);
   }
 
   agregar70() {
@@ -172,17 +182,22 @@ export class AbonarPagoComponent implements OnInit {
           }
         }
       }
-      this.acuerdo70.push({
+      this.detallesPago70.push({
         indice: this.contador70,
-        idModalidad: this.modalidad70,
-        modalidad: nombreModalidad,
-        porcentaje: this.porcentaje70,
-        valor: this.porcentaje70 * this.total / 100,
-        idBanco: this.banco70,
+        IDMODALIDAD: parseInt(this.modalidad70),
+        MODALIDADDEPAGO: nombreModalidad,
+        PORCENTAJE: this.porcentaje70,
+        VALOR: this.porcentaje70 * this.total / 100,
+        IDBANCO: this.banco70,
         nombreBanco: nombreBanco,
         correoBanco: correoBanco,
         partepct: 70,
+        grupoFinanciero: 1,
+        tipoTarjeta: 1,
+        PAGADO: false,
+        PAGO: 'FALSE',
       });
+      console.log(this.detallesPago70)
       this.contador70++;
       this.total70 += this.porcentaje70;
       this.porcentaje70 = 0;
@@ -191,5 +206,35 @@ export class AbonarPagoComponent implements OnInit {
     }
   }
 
+  getBanco(idBanco) {
+    var banconame = "";
+    this.bancos.forEach(banco => {
+      if (banco.IDBANCO = idBanco) {
+        banconame = banco.NOMBREBANCO;
+      }
+    });
+    return banconame;
+  }
 
+   abonarPago(){
+    if(this.cambio){
+      
+      if(this.total70==70){
+        alert('Se actualiza acuerdo de pago');
+        var dataUpdate={
+          idCotizacion: this.cotizacion,
+          detallesPago70: JSON.stringify(this.detallesPago70),
+        };
+        this.oracle.postAbonarUpdate(dataUpdate).toPromise().then(responseAbonarUpdate=>{
+          alert(responseAbonarUpdate.text());
+        }).catch(()=>{
+          alert('No se pudo actualizar el acuerdo de pago');
+        });
+      }else{
+        alert('Se debe ingresar el 70 %');
+      }
+      
+   }else{
+      alert('Se registra pago');
+   }
 }

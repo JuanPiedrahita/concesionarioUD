@@ -130,10 +130,10 @@
       <th> VALOR </th>
     </tr>
     <tr *ngFor="let pago of detallesPago70">
-      <th> {{pago.modalidad}} </th>
+      <th> {{pago.MODALIDADDEPAGO}} </th>
       <th> {{pago.nombreBanco}} </th>
-      <th> {{pago.porcentaje}}</th>
-      <th> {{pago.valor}}</th>
+      <th> {{pago.PORCENTAJE}}</th>
+      <th> {{(pago.PORCENTAJE*total/100)}}</th>
       <th>
         <input (click)="eliminar70(pago.indice)" class="btn" type="submit" value="Eliminar"> </th>
     </tr>
@@ -156,5 +156,5 @@
 
 
 <div class="center" *ngIf="mostarDetalles">
-  <input (click)="abonarPago" class="btn" type="submit" value="Separar auto">
+  <input (click)="abonarPago()" class="btn" type="submit" value="Abonar Pago">
 </div>

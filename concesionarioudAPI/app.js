@@ -249,6 +249,59 @@ router.post('/postCambiarEstado', function (request, response) {
   });
 });
 
+router.post('/postAbonarUpdate', (request, response)=>{
+  console.log("params", request.query);
+  response.header('Access-Control-Allow-Origin', '*');
+  response.header('Access-Control-Allow-Methods', 'GET, POST');
+  response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  var idCotizacion = parseInt(request.query.idCotizacion);
+  var fechaAcuerdo = new Date();
+  fechaAcuerdo.setDate(fechaAcuerdo.getDate() + 1);
+  var detallesPago70= JSON.parse(decodeURIComponent(request.query.detallesPago70));
+
+  var connection = basicOracle.getConnection(request.query.user, request.query.pass, response);
+  connection.then((conexion)=>{
+    sqlUpdate = "update acuerdopago set valido = 'no' where idCotizacion=:idCotizacion and partepct=70";
+    basicOracle.insert(conexion,sqlUpdate,[idCotizacion], response).then(()=>{
+      var promesas= [];
+      for(var i=0; i< detallesPago70.length; i++){
+        var detalle=detallesPago70[i];
+        var idModalidad= detalle.IDMODALIDAD;
+        var idBanco=detalle.IDBANCO;
+        var porcentaje= detalle.PORCENTAJE;
+        var valor= detalle.VALOR;
+        var sqlInsertAcuerdo;
+        var idTarjeta=detalle.tipoTarjeta;
+        var idGrupo= detalle.grupoFinanciero;
+        if(idModalidad===1){
+          sqlInsertAcuerdo= "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idbanco, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values ((select max(idacuerdopago)+1 from acuerdopago where idCotizacion=:idCotizacion), :fechaAcuerdo, :idBanco, 1 , :idCotizacion, :porcentaje, :valor, 70, 'si')"
+          promesas.push(
+            basicOracle.insert(conexion, sqlInsertAcuerdo, [idCotizacion, fechaAcuerdo, idBanco, idCotizacion, porcentaje, valor], response)
+          );
+        }else if(idModalidad===2|| idModalidad===3){
+          sqlInsertAcuerdo = "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idGrupofin, idtipotarjeta, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values ((select max(idacuerdopago)+1 from acuerdopago where idCotizacion=:idCotizacion), :fechaAcuerdo, :idGrupo, :idTarjeta, :idModalidad , :idCotizacion, :porcentaje, :valor, 70, 'si')"
+          promesas.push(
+            basicOracle.insert(conexion, sqlInsertAcuerdo, [idCotizacion,fechaAcuerdo, idGrupo, idTarjeta, idModalidad, idCotizacion, porcentaje, valor], response)
+          );
+        }else if(idModalidad===4){
+          sqlInsertAcuerdo = "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values ((select max(idacuerdopago)+1 from acuerdopago where idCotizacion=:idCotizacion), :fechaAcuerdo, 4 , :idCotizacion, :porcentaje, :valor, 70, 'si')"
+          promesas.push(
+            basicOracle.insert(conexion, sqlInsertAcuerdo, [idCotizacion, fechaAcuerdo, idCotizacion, porcentaje, valor], response)
+          );
+        }
+      }
+      Promise.all(promesas).then(()=>{
+        basicOracle.insert(conexion,"commit",[],response).then(()=>{
+          basicOracle.close(conexion);
+          response.contentType('application/json').status(200);
+          response.send(JSON.stringify("Se actualiza acuerdo de pago"));
+        });
+      });
+    }) 
+  });
+
+});
+
 router.post('/postAcuerdoPago', function (request, response) {
   console.log("params", request.query);
   response.header('Access-Control-Allow-Origin', '*');
