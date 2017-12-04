@@ -21,9 +21,10 @@ export class AbonarPagoComponent implements OnInit {
   cambio: boolean = false;
   documentoCliente: number;
   detallesPago30: any[];
-  detallesPago70: any [];
+  detallesPago70: any[];
   gruposFinancieros: any[];
   tiposTarjeta: any[];
+  porcentajeDisponible:number=70;
   bancos: any[];
   total30: number;
   total70: number;
@@ -31,16 +32,16 @@ export class AbonarPagoComponent implements OnInit {
   acuerdo70: any[];
   banco70: number;
   modalidad70: number;
-  contador70:number;
-  modalidadesPago: any [];
-  idAcuerdoPago: number =0;
+  contador70: number;
+  modalidadesPago: any[];
+  idAcuerdoPago: number = 0;
 
 
 
 
   ngOnInit() {
-    this.oracle.getModalidadPago().toPromise().then(responseModalidades=>{
-      this.modalidadesPago=JSON.parse(responseModalidades.text());
+    this.oracle.getModalidadPago().toPromise().then(responseModalidades => {
+      this.modalidadesPago = JSON.parse(responseModalidades.text());
       console.log(this.modalidadesPago);
     }).catch(() => {
       alert("no se pudieron cargar las modalidades porfavor recargue la pagina");
@@ -83,7 +84,7 @@ export class AbonarPagoComponent implements OnInit {
             this.dataCotizacion["FECHA"] = cotizacion.FECHACOTIZACION;
             this.dataCotizacion["TOTAL"] = cotizacion.TOTALCOTIZACION;
             this.total = cotizacion.TOTALCOTIZACION;
- 
+
           }
         }
         this.oracle.getDetallesCotizacion(idCotizacion)
@@ -99,27 +100,33 @@ export class AbonarPagoComponent implements OnInit {
                   detalle["grupoFinanciero"] = 1;
                   detalle["tipoTarjeta"] = 1;
                 });
+                this.porcentajeDisponible=70;
                 this.oracle.getDetallesPago70(idCotizacion).toPromise()
-                .then(responseDetalles70=>{
-                  this.detallesPago70=JSON.parse(responseDetalles70.text());
-                  this.contador70 = 1;
-                  this.detallesPago70.forEach(detalle => {
-                    this.idAcuerdoPago = (this.idAcuerdoPago > detalle.IDACUERDOPAGO) ? this.idAcuerdoPago : detalle.IDACUERDOPAGO;
-                    detalle["PAGADO"] = detalle.PAGO === 'TRUE';
-                    detalle["grupoFinanciero"] = 1;
-                    detalle["tipoTarjeta"] = 1;
-                    detalle.IDBANCO = parseInt(detalle.IDBANCO);
-                    detalle["nombreBanco"]= detalle.BANCO;
-                    detalle["NOMBREBANCO"]= detalle.BANCO;
-                    detalle["indice"]= this.contador70;
-                    this.contador70++;
-                    console.log(detalle);
+                  .then(responseDetalles70 => {
+                    this.detallesPago70 = JSON.parse(responseDetalles70.text());
+                    this.contador70 = 1;
+                    this.detallesPago70.forEach(detalle => {
+                      this.idAcuerdoPago = (this.idAcuerdoPago > detalle.IDACUERDOPAGO) ? this.idAcuerdoPago : detalle.IDACUERDOPAGO;
+                      detalle["PAGADO"] = detalle.PAGO === 'TRUE';
+                      detalle["grupoFinanciero"] = 1;
+                      detalle["tipoTarjeta"] = 1;
+                      detalle.IDBANCO = parseInt(detalle.IDBANCO);
+                      detalle["nombreBanco"] = detalle.BANCO;
+                      detalle["NOMBREBANCO"] = detalle.BANCO;
+                      detalle["indice"] = this.contador70;
+                      if(detalle.PAGADO){
+                        this.porcentajeDisponible-= detalle.PORCENTAJE;
+                      }
+
+                      this.contador70++;
+                      console.log(detalle);
+                    });
+                    this.total70 = this.porcentajeDisponible;
+                    this.idAcuerdoPago++;
+                    this.mostarDetalles = true;
+                  }).catch(() => {
+                    alert("No se pudo cargar los detalles del pago del 70, intente nuevamente.");
                   });
-                  this.idAcuerdoPago++;
-                  this.mostarDetalles = true;
-                }).catch(()=>{
-                  alert("No se pudo cargar los detalles del pago del 70, intente nuevamente.");
-                });
 
               })
               .catch(() => {
@@ -156,7 +163,7 @@ export class AbonarPagoComponent implements OnInit {
 
 
   eliminar70(indice) {
-    this.cambio=true;
+    this.cambio = true;
     var iEliminar;
     for (var i = 0; i < this.detallesPago70.length; i++) {
       if (this.detallesPago70[i].indice == indice) {
@@ -168,7 +175,7 @@ export class AbonarPagoComponent implements OnInit {
   }
 
   agregar70() {
-    if (this.total70 + this.porcentaje70 <= 70 && this.porcentaje70 !== 0) {
+    if (this.total70 + this.porcentaje70 <= this.porcentajeDisponible && this.porcentaje70 !== 0) {
       var nombreModalidad = "";
       var nombreBanco = "";
       var correoBanco = "";
@@ -186,7 +193,7 @@ export class AbonarPagoComponent implements OnInit {
         }
       }
       this.detallesPago70.push({
-        IDACUERDOPAGO :0,
+        IDACUERDOPAGO: 0,
         indice: this.contador70,
         IDMODALIDAD: parseInt(this.modalidad70),
         MODALIDADDEPAGO: nombreModalidad,
@@ -221,62 +228,188 @@ export class AbonarPagoComponent implements OnInit {
     return banconame;
   }
 
-  registrarPago(){
-    var pagosHechos =[];
-    var total=0;
-    this.detallesPago70.forEach(detalle =>{
-      if (detalle.PAGO ==='FALSE' && detalle.PAGADO){
+  registrarPago() {
+    var pagosHechos = [];
+    var total = 0;
+    var todoPagado = "true";
+    this.detallesPago70.forEach(detalle => {
+      if (detalle.PAGADO===false) {
+        todoPagado = "false";
+      }
+      if (detalle.PAGO === 'FALSE' && detalle.PAGADO) {
         pagosHechos.push(detalle);
-        total+= detalle.VALOR;
+        total += detalle.VALOR;
       }
     });
-    if(pagosHechos.length>0){
-      this.oracle.getMaximo("factura").subscribe(responseIdFactura=>{
-        var idFactura=JSON.parse(responseIdFactura.text()).id;
+
+    if (pagosHechos.length > 0) {
+      var histoAuto = 0;
+      var partes = [];
+      this.detallesCotizacion.forEach(detalle => {
+        if (detalle.DESCCOTIZACION === "Auto") {
+          histoAuto = detalle.ELEMENTO;
+        }
+        if (detalle.DESCCOTIZACION === "Parte") {
+          partes.push(detalle.ELEMENTO);
+        }
+      });
+      this.oracle.getMaximo("factura").subscribe(responseIdFactura => {
+        var idFactura = JSON.parse(responseIdFactura.text()).id;
         var dataPagos = {
+          partes: JSON.stringify(partes),
           idCotizacion: this.cotizacion,
           idCliente: this.documentoCliente,
           idFactura: idFactura,
           total: total,
           detalles: JSON.stringify(pagosHechos),
+          histoAuto: histoAuto,
+          todoPagado: todoPagado
         }
-        this.oracle.postPagar(dataPagos).toPromise().then((responsePagos)=>{
-          alert(responsePagos.text());
+        this.oracle.postPagar(dataPagos).toPromise().then((responsePagos) => {
+          alert(responsePagos.text() + "\nSe generará un pdf por favor guardelo");
+          this.generarPDF(dataPagos);
           this.router.navigate([""]);
-        }).catch(()=>{
-          alert('no se pudieron registrar los pagos');
+        }).catch(() => {
+          alert('No se pudieron registrar los pagos');
         });
       });
-    }else{
+    } else {
       alert('No se ha realizado ningun pago');
     }
 
   }
 
-   abonarPago(){
-    if(this.cambio){
-      if(this.total70==70){
-        this.detallesPago70.forEach(detalle=>{
-          detalle.IDACUERDOPAGO= this.idAcuerdoPago;
+  abonarPago() {
+    if (this.cambio) {
+      if (this.total70 == this.porcentajeDisponible) {
+        this.detallesPago70.forEach(detalle => {
+          detalle.IDACUERDOPAGO = this.idAcuerdoPago;
           this.idAcuerdoPago++;
         });
-        var dataUpdate={
+        var dataUpdate = {
           idCotizacion: this.cotizacion,
           detallesPago70: JSON.stringify(this.detallesPago70),
         };
-        this.oracle.postAbonarUpdate(dataUpdate).toPromise().then(responseAbonarUpdate=>{
+        this.oracle.postAbonarUpdate(dataUpdate).toPromise().then(responseAbonarUpdate => {
           this.registrarPago();
-          this.cambio=false;
+          this.cambio = false;
           alert(responseAbonarUpdate.text());
-        }).catch(()=>{
+        }).catch(() => {
           alert('No se pudo actualizar el acuerdo de pago');
         });
-      }else{
+      } else {
         alert('Se debe ingresar el 70 %');
       }
-      
-   }else{
+
+    } else {
       this.registrarPago();
 
-   }
+    }
+  }
+  getTipoTarjeta(idTipoTarjeta) {
+    var tarjetaname = "";
+    this.tiposTarjeta.forEach(tarjeta => {
+      if (tarjeta.IDBTIPOTARJETA = idTipoTarjeta) {
+        tarjetaname = tarjeta.DESCRIPCIONTIPOTARJETA;
+      }
+    });
+    return tarjetaname;
+  }
+
+  getGrupo(idGrupo) {
+    var gruponame = "";
+    this.gruposFinancieros.forEach(grupo => {
+      if (grupo.IDGRUPO = idGrupo) {
+        gruponame = grupo.NOMBREGRUPOFINANCIERO;
+      }
+    });
+    return gruponame;
+  }
+
+  generarPDF(data: any) {
+
+    var pdfmaker = require('pdfmake/build/pdfmake.js');
+    var pdfFonts = require('pdfmake/build/vfs_fonts.js');
+
+    var body = [];
+    var total = 0;
+    var f= new Date();
+    f.setDate(f.getDate() +1);
+    var fecha = f.toJSON().slice(0, 10);
+    var detalles = JSON.parse(data.detalles);
+
+    var fila = new Array();
+    fila.push("Modalidad de Pago");
+    fila.push("Banco");
+    fila.push("Grupo Financiero");
+    fila.push("Tipo Tarjeta");
+    fila.push("Porcentaje");
+    fila.push("Valor");
+    body.push(fila);
+
+    for (var i = 0; i < detalles.length; i++) {
+      fila = new Array();
+      var detalle = detalles[i];
+      var banco = (detalle.IDMODALIDAD === 1) ? this.getBanco(detalle.IDBANCO): "";
+      var grupo = (detalle.IDMODALIDAD === 2 || detalle.IDMODALIDAD === 3) ? this.getGrupo(detalle.grupoFinanciero) : "";
+      var tarjeta = (detalle.IDMODALIDAD === 2 || detalle.IDMODALIDAD === 3) ? this.getTipoTarjeta(detalle.tipoTarjeta) : "";
+      fila.push(detalle.MODALIDADDEPAGO);
+      fila.push(banco);
+      fila.push(grupo);
+      fila.push(tarjeta);
+      fila.push(detalle.PORCENTAJE);
+      fila.push((detalle.PORCENTAJE * this.total / 100).toFixed(3));
+      body.push(fila);
+
+      total += detalle.VALOR;
+    }
+
+
+
+    fila = new Array();
+    fila.push("TOTAL");
+    fila.push("");
+    fila.push("");
+    fila.push("");
+    fila.push("");
+    fila.push((total).toFixed(3));
+    body.push(fila);
+
+
+    //definicion del pdf
+    var dd = {
+      content: [
+        { text: "CONCESIONARIO UD \n \n \n \n" },
+        {
+          text: "Factura \n \n \n",
+          alignment: 'center',
+        },
+        {
+          text: 'Consecutivo: ' + data.idFactura + ' \n \n'
+        },
+        {
+          text: 'Fecha: ' + fecha + ' \n \n'
+        },
+        {
+          text: "Cliente: \n"
+            + "Número de identificación: " + this.documentoCliente
+        },
+        {
+          text: "Detalles de la factura \n \n",
+          alignment: 'center'
+        },
+        {
+          table:
+            {
+              headerRows: 1,
+              widths: ['15%', '15%', '20%', '20%', '15%', '15%'],
+              body: body
+            }
+        }
+      ]
+    };
+
+    pdfmaker.vfs = pdfFonts.pdfMake.vfs;
+    pdfmaker.createPdf(dd).download('factura:' + data.idFactura + ',para cliente' + this.documentoCliente + ".pdf");
+  }
 }
