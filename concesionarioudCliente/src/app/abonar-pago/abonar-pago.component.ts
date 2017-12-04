@@ -195,7 +195,7 @@ export class AbonarPagoComponent implements OnInit {
       this.detallesPago70.push({
         IDACUERDOPAGO: 0,
         indice: this.contador70,
-        IDMODALIDAD: parseInt(this.modalidad70),
+        IDMODALIDAD: parseInt(this.modalidad70+""),
         MODALIDADDEPAGO: nombreModalidad,
         PORCENTAJE: this.porcentaje70,
         VALOR: this.porcentaje70 * this.total / 100,
