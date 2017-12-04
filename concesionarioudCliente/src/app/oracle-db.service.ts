@@ -39,7 +39,7 @@ export class OracleDbService {
   tiposTarjeta: string = "tipoTarjeta";
   cotizacionAbono: string= 'cotizacionAbono';
   abonarUpdate: string= 'postAbonarUpdate';
-
+  postPago: string= 'postPagar';
 
   constructor(private http: Http) { }
 
@@ -72,9 +72,15 @@ export class OracleDbService {
     //}).toPromise();
   }
 
+  postPagar(parametro: any) {
+    return this.oraclePost(this.postPago, parametro);
+  }
+
   postSepararAuto(parametro: any){
     return this.oraclePost(this.postSeparar, parametro);
   }
+
+
 
   postAbonarUpdate(parametro: any){
     return this.oraclePost(this.abonarUpdate, parametro);

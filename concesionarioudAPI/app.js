@@ -134,7 +134,7 @@ router.get('/tipoTarjeta', function (request, response) {
 });
 
 router.get('/auto', function (request, response) {
-  sql = "select vim vin, nombreAuto nombre from auto";
+  sql = "select vim vin, nombreAuto nombre from auto where vim not in (select idAuto from stockAutos)";
   basicOracle.open(request.query.user, request.query.pass, sql, [], false, response);
   response.end;
 });
@@ -249,7 +249,7 @@ router.post('/postCambiarEstado', function (request, response) {
   });
 });
 
-router.post('/postAbonarUpdate', (request, response)=>{
+router.post('/postAbonarUpdate', (request, response) => {
   console.log("params", request.query);
   response.header('Access-Control-Allow-Origin', '*');
   response.header('Access-Control-Allow-Methods', 'GET, POST');
@@ -257,50 +257,134 @@ router.post('/postAbonarUpdate', (request, response)=>{
   var idCotizacion = parseInt(request.query.idCotizacion);
   var fechaAcuerdo = new Date();
   fechaAcuerdo.setDate(fechaAcuerdo.getDate() + 1);
-  var detallesPago70= JSON.parse(decodeURIComponent(request.query.detallesPago70));
+  var detallesPago70 = JSON.parse(decodeURIComponent(request.query.detallesPago70));
 
   var connection = basicOracle.getConnection(request.query.user, request.query.pass, response);
-  connection.then((conexion)=>{
-    sqlUpdate = "update acuerdopago set valido = 'no' where idCotizacion=:idCotizacion and partepct=70";
-    basicOracle.insert(conexion,sqlUpdate,[idCotizacion], response).then(()=>{
-      var promesas= [];
-      for(var i=0; i< detallesPago70.length; i++){
-        var detalle=detallesPago70[i];
-        var idModalidad= detalle.IDMODALIDAD;
-        var idBanco=detalle.IDBANCO;
-        var porcentaje= detalle.PORCENTAJE;
-        var valor= detalle.VALOR;
+  connection.then((conexion) => {
+    sqlUpdate = "update acuerdopago set valido = 'no' where idCotizacion=:idCotizacion and partepct=70 and idAcuerdoPago not in (select idacuerdopago from detallefactura where idcotizacion = :idCotizacion)";
+    basicOracle.insert(conexion, sqlUpdate, [idCotizacion, idCotizacion], response).then(() => {
+      var promesas = [];
+      for (var i = 0; i < detallesPago70.length; i++) {
+        var detalle = detallesPago70[i];
+        var idModalidad = detalle.IDMODALIDAD;
+        var idBanco = detalle.IDBANCO;
+        var porcentaje = detalle.PORCENTAJE;
+        var valor = detalle.VALOR;
         var sqlInsertAcuerdo;
-        var idTarjeta=detalle.tipoTarjeta;
-        var idGrupo= detalle.grupoFinanciero;
-        if(idModalidad===1){
-          sqlInsertAcuerdo= "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idbanco, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values ((select max(idacuerdopago)+1 from acuerdopago where idCotizacion=:idCotizacion), :fechaAcuerdo, :idBanco, 1 , :idCotizacion, :porcentaje, :valor, 70, 'si')"
+        var idTarjeta = detalle.tipoTarjeta;
+        var idGrupo = detalle.grupoFinanciero;
+        var idAcuerdoPago = detalle.IDACUERDOPAGO;
+        if (idModalidad === 1) {
+          sqlInsertAcuerdo = "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idbanco, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values (:idAcuerdoPago, :fechaAcuerdo, :idBanco, 1 , :idCotizacion, :porcentaje, :valor, 70, 'si')"
           promesas.push(
-            basicOracle.insert(conexion, sqlInsertAcuerdo, [idCotizacion, fechaAcuerdo, idBanco, idCotizacion, porcentaje, valor], response)
+            basicOracle.insert(conexion, sqlInsertAcuerdo, [idAcuerdoPago, fechaAcuerdo, idBanco, idCotizacion, porcentaje, valor], response)
           );
-        }else if(idModalidad===2|| idModalidad===3){
-          sqlInsertAcuerdo = "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idGrupofin, idtipotarjeta, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values ((select max(idacuerdopago)+1 from acuerdopago where idCotizacion=:idCotizacion), :fechaAcuerdo, :idGrupo, :idTarjeta, :idModalidad , :idCotizacion, :porcentaje, :valor, 70, 'si')"
+        } else if (idModalidad === 2 || idModalidad === 3) {
+          sqlInsertAcuerdo = "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idGrupofin, idtipotarjeta, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values (:idAcuerdoPago, :fechaAcuerdo, :idGrupo, :idTarjeta, :idModalidad , :idCotizacion, :porcentaje, :valor, 70, 'si')"
           promesas.push(
-            basicOracle.insert(conexion, sqlInsertAcuerdo, [idCotizacion,fechaAcuerdo, idGrupo, idTarjeta, idModalidad, idCotizacion, porcentaje, valor], response)
+            basicOracle.insert(conexion, sqlInsertAcuerdo, [idAcuerdoPago, fechaAcuerdo, idGrupo, idTarjeta, idModalidad, idCotizacion, porcentaje, valor], response)
           );
-        }else if(idModalidad===4){
-          sqlInsertAcuerdo = "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values ((select max(idacuerdopago)+1 from acuerdopago where idCotizacion=:idCotizacion), :fechaAcuerdo, 4 , :idCotizacion, :porcentaje, :valor, 70, 'si')"
+        } else if (idModalidad === 4) {
+          sqlInsertAcuerdo = "insert into acuerdoPago (Idacuerdopago, fechaacuerdo, idmodalidaddepago, idcotizacion, porcentaje, valor, partepct, valido) values (:idAcuerdoPago, :fechaAcuerdo, 4 , :idCotizacion, :porcentaje, :valor, 70, 'si')"
           promesas.push(
-            basicOracle.insert(conexion, sqlInsertAcuerdo, [idCotizacion, fechaAcuerdo, idCotizacion, porcentaje, valor], response)
+            basicOracle.insert(conexion, sqlInsertAcuerdo, [idAcuerdoPago, fechaAcuerdo, idCotizacion, porcentaje, valor], response)
           );
         }
       }
-      Promise.all(promesas).then(()=>{
-        basicOracle.insert(conexion,"commit",[],response).then(()=>{
+      Promise.all(promesas).then(() => {
+        basicOracle.insert(conexion, "commit", [], response).then(() => {
           basicOracle.close(conexion);
           response.contentType('application/json').status(200);
           response.send(JSON.stringify("Se actualiza acuerdo de pago"));
         });
       });
-    }) 
+    })
   });
 
 });
+
+router.post('/postPagar', function (request, response) {
+  console.log("params", request.query);
+  response.header('Access-Control-Allow-Origin', '*');
+  response.header('Access-Control-Allow-Methods', 'GET, POST');
+  response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  var idCliente = parseInt(request.query.idCliente);
+  var idCotizacion = parseInt(request.query.idCotizacion);
+  var fechaFactura = new Date();
+  fechaFactura.setDate(fechaFactura.getDate() + 1);
+  var empleado = request.query.user;
+  var idFactura = parseInt(request.query.idFactura);
+  var total = parseFloat(request.query.total).toFixed(3);
+  var todoPago = request.query.todoPagado;
+  var detalles = JSON.parse(decodeURIComponent(request.query.detalles));
+  var connection = basicOracle.getConnection(request.query.user, request.query.pass, response);
+  connection.then(function (conexion) {
+    sqlFactura = "insert into factura (idFactura, fechaFacturado, idCotizacion, idCliente, idTipoFactura, idEmpleado, totalFactura) values (:idFactura, :fechaFactura, :idCotizacion, :idCliente, 1, (select idEmpleado from empleado where usuario= :empleado), :total)";
+    basicOracle.insert(conexion, sqlFactura, [idFactura, fechaFactura, idCotizacion, idCliente, empleado, total], response).then(function () {
+      var promesas = [];
+      for (var i = 0; i < detalles.length; i++) {
+        var detalle = detalles[i];
+        var idAcuerdoPago = detalle.IDACUERDOPAGO;
+        var valor = detalle.VALOR;
+
+        sqlDetalle = "insert into detalleFactura values ((select nvl(max(idDetalleFact)+1,1) from detalleFactura where idFactura=:idFactura), 'pago', :idFactura, :idAcuerdoPago, :idCotizacion ,:valor)";
+        promesas.push(
+          basicOracle.insert(conexion, sqlDetalle, [idFactura, idFactura, idAcuerdoPago, idCotizacion, valor], response)
+        );
+      }
+      Promise.all(promesas).then(() => {
+        if (todoPago==="true") {
+          var histopartes = JSON.parse(decodeURIComponent(request.query.partes));
+          var histoAuto = parseInt(request.query.histoAuto);
+
+          promesas = []
+          //Separar auto en el stock
+          sqlStockAuto = "insert into stockautos values ((select nvl(max(idstockautos)+1,1) from stockautos),1,1,:idFactura,(select idtipoMovimientos from tipomovimientos where nombretipomov like 'Vendido'),(select idAuto from histoPreciosAuto where idHistoPreciosAuto=:histoAuto),(select idEstadoStock from estadoStock where descEstadoStock like 'Vendido'))";
+
+          promesas.push(
+            basicOracle.insert(conexion, sqlStockAuto, [idFactura, histoAuto], response)
+          );
+          //Separar partes en el stock si hay
+          for (var i = 0; i < histopartes.length; i++) {
+            parte = histopartes[i];
+            sqlStockParte = "insert into stockParte values ((select nvl(max(idStockParte)+1,1) from stockparte),1,1,:idFactura,(select idtipoMovimientos from tipomovimientos where nombretipomov like 'Vendido'),(select idParte from histoPrecioParte where idHistoPreParte=:parte),(select idEstadoStockParte from EstadoStockParte where descEstadoStockParte like 'Vendido'))";
+            promesas.push(
+              basicOracle.insert(conexion, sqlStockParte, [idFactura, parte], response)
+            );
+          }
+
+          Promise.all(promesas).then(function () {
+            //Se incluyen registro de auto vendido
+            var sqlUpdateProceso = "update proceso set activo='no' where idcotizacion=:idCotizacion";
+            var sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Vendido',(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Auto Cancelado'), :idCotizacion,:fechaFactura,'si')";
+            basicOracle.insert(conexion, sqlUpdateProceso, [idCotizacion], response)
+              .then(function () {
+
+                basicOracle.insert(conexion, sqlProceso, [idCotizacion, fechaFactura], response)
+                  .then(function () {
+                    basicOracle.insert(conexion, "commit", [], response)
+                      .then(function () {
+                        basicOracle.close(conexion);
+                        response.contentType('application/json').status(200);
+                        response.send(JSON.stringify("Se insertan pagos y se cancela auto"));
+                      });
+                  });
+
+              });
+          });
+
+        } else {
+          basicOracle.insert(conexion, "commit", [], response).then(() => {
+            basicOracle.close(conexion);
+            response.contentType('application/json').status(200);
+            response.send(JSON.stringify("Se insertan pagos"));
+          });
+        }
+      });
+    });
+  });
+})
+
 
 router.post('/postAcuerdoPago', function (request, response) {
   console.log("params", request.query);
@@ -358,7 +442,6 @@ router.post('/postAcuerdoPago', function (request, response) {
     Promise.all(promesas).then(function () {
       var sqlUpdateProceso = "update proceso set activo='no' where idcotizacion=:idCotizacion";
       if (!hayBanco) {
-        sqlUpdate =
           sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Se acuerda pago',(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Acuerdo Pago'), :idCotizacion,:fechaAcuerdo,'si')"
       } else {
         sqlProceso = "insert into proceso values ((select max(idProceso)+1 from proceso),'Se estudia credito',(select idtipoproceso from tipoproceso where nombreTipoProceso like 'Estudio credito'), :idCotizacion,:fechaAcuerdo,'si')"

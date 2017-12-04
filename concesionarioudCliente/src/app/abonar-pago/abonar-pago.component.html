@@ -94,26 +94,26 @@
       <td> {{detalle.MODALIDADDEPAGO}} </td>
       <td>
         <!--{{detalle.BANCO}}-->
-        <select *ngIf="detalle.IDMODALIDAD===1" [(ngModel)]="detalle.IDBANCO" name="auto" class="txt" >
+        <select *ngIf="detalle.IDMODALIDAD===1" [(ngModel)]="detalle.IDBANCO" name="auto" class="txt" [disabled]="detalle.PAGADO">
           <option selected *ngFor="let banco of bancos" value="{{banco.IDBANCO}}">{{banco.NOMBREBANCO}}</option>
         </select>
         <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.grupoFinanciero" name="auto" class="txt"
-          >
+           [disabled]="detalle.PAGADO">
           <option selected *ngFor="let grupo of gruposFinancieros" value="{{grupo.IDGRUPO}}">{{grupo.NOMBREGRUPOFINANCIERO}}</option>
         </select>
         <select *ngIf="detalle.IDMODALIDAD===2 || detalle.IDMODALIDAD===3" [(ngModel)]="detalle.tipoTarjeta" name="auto" class="txt"
-          >
+           [disabled]="detalle.PAGADO">
           <option selected *ngFor="let tarjeta of tiposTarjeta" value="{{tarjeta.IDTIPOTARJETA}}">{{tarjeta.DESCRIPCIONTIPOTARJETA}}</option>
         </select>
       </td>
       <td>
-        <input type="number" [(ngModel)]="detalle.PORCENTAJE" style="width:70%" > </td>
+        <input type="number" [(ngModel)]="detalle.PORCENTAJE" style="width:70%" [disabled]="detalle.PAGADO" > </td>
       <td> {{detalle.PORCENTAJE*dataCotizacion.TOTAL/100}}</td>
       <td *ngIf="detalle.PAGO==='FALSE'">
         <input type="checkbox" [(ngModel)]="detalle.PAGADO" > </td>
       <td *ngIf="detalle.PAGO==='TRUE'"> PAGADO </td>
     </tr>
-  </table>
+  </table>  
   <br>
 
 </div>
@@ -135,7 +135,7 @@
       <th> {{pago.PORCENTAJE}}</th>
       <th> {{(pago.PORCENTAJE*total/100)}}</th>
       <th>
-        <input (click)="eliminar70(pago.indice)" class="btn" type="submit" value="Eliminar"> </th>
+        <input *ngIf="!pago.PAGADO" (click)="eliminar70(pago.indice)" class="btn" type="submit" value="Eliminar"> </th>
     </tr>
   </table>
   

@@ -151,6 +151,7 @@ insert into tipoProceso values (3,'Estudio credito');
 insert into tipoProceso values (4,'Credito Aprobado');	
 insert into tipoProceso values (5,'Acuerdo Pago Credito');
 insert into tipoProceso values (6,'Auto Separado');
+insert into tipoProceso values (7, 'Auto Cancelado');
 
 ##inserts into registro
 insert into aseguradora values (1,'Seguros del estado',0);
@@ -176,10 +177,13 @@ insert into tipoTarjeta values (2,'debito');
 insert into tipoFactura values (1,'Factura por venta');
 
 insert into tipoMovimientos values (1,'Separado');
+insert into tipoMovimientos values (2,'Vendido');
 
 insert into estadoStock values (1,'Separado');
+insert into estadoStock values (2,'Vendido');
 
 insert into estadoStockParte values (1,'Separado');
+insert into estadoStockParte values (2,'Vendido');
 
 
 

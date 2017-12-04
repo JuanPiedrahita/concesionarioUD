@@ -189,7 +189,7 @@ export class CotizacionComponent implements OnInit {
                       descCotizacion: 'Tramite',
                       nombre: 'Seguro',
                       elemento: idHistoricoPreciosRegistro,
-                      valorElemento: this.matricula,
+                      valorElemento: this.seguro,
                     });
                     contador ++;
                     dataDetalleCotizacion.push({
@@ -197,7 +197,7 @@ export class CotizacionComponent implements OnInit {
                       descCotizacion: 'Tramite',
                       nombre: 'Matricula',
                       elemento: (idHistoricoPreciosRegistro+1),
-                      valorElemento: this.seguro,
+                      valorElemento: this.matricula,
                     });
     
                     var dataCotizacion = {
